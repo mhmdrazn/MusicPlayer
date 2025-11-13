@@ -7,6 +7,7 @@ import { getAllPlaylists } from '@/lib/db/queries';
 import { OptimisticPlaylists } from './optimistic-playlists';
 import { PlaylistProvider } from './hooks/use-playlist';
 import { PlaybackControls } from './playback-controls';
+import { UserButton } from '@/components/user-button';
 
 export const metadata: Metadata = {
   title: 'Next.js Music Player',
@@ -36,6 +37,7 @@ export default function RootLayout({
         <PlaybackProvider>
           <PlaylistProvider playlistsPromise={playlistsPromise}>
             <OptimisticPlaylists />
+            <UserButton />
             {children}
           </PlaylistProvider>
           <NowPlaying />
