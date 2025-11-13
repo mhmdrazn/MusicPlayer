@@ -17,12 +17,23 @@ async function seedSongs() {
   let tracksDir = path.join(process.cwd(), 'tracks');
   let files = await fs.readdir(tracksDir);
 
-  for (let file of files.filter(
-    (file) => path.extname(file).toLowerCase() === '.mp3'
-  )) {
+  for (let file of files.filter((file) => {
+    const ext = path.extname(file).toLowerCase();
+    return ext === '.mp3' || ext === '.webm' || ext === '.wav' || ext === '.m4a';
+  })) {
     let filePath = path.join(tracksDir, file);
     let buffer = await fs.readFile(filePath);
-    let metadata = await parseBuffer(buffer, { mimeType: 'audio/mpeg' });
+
+    // Determine MIME type based on file extension
+    const ext = path.extname(file).toLowerCase();
+    let mimeType = 'audio/mpeg'; // default to mp3
+    if (ext === '.webm') mimeType = 'audio/webm';
+    else if (ext === '.wav') mimeType = 'audio/wav';
+    else if (ext === '.m4a') mimeType = 'audio/mp4';
+
+    // music-metadata expects a Uint8Array/ArrayBuffer-like type for parseBuffer
+    const uint8 = new Uint8Array(buffer);
+    let metadata = await parseBuffer(uint8, { mimeType });
 
     let imageUrl;
     if (metadata.common.picture && metadata.common.picture.length > 0) {
@@ -120,7 +131,16 @@ async function seedPlaylists() {
 
     // Add some random songs to the playlist
     const allSongs = await db.select().from(songs);
-    const playlistSongCount = Math.floor(Math.random() * 10) + 5; // 5 to 14 songs
+
+    if (allSongs.length === 0) {
+      console.log(`No songs available to add to playlist: ${name}`);
+      continue;
+    }
+
+    const playlistSongCount = Math.min(
+      Math.floor(Math.random() * 10) + 5, // 5 to 14 songs
+      allSongs.length // but not more than available songs
+    );
     const shuffledSongs = allSongs.sort(() => 0.5 - Math.random());
 
     // Remove existing playlist songs
@@ -130,9 +150,12 @@ async function seedPlaylists() {
 
     // Add new playlist songs
     for (let i = 0; i < playlistSongCount; i++) {
+      const song = shuffledSongs[i];
+      if (!song) continue; // guard, just in case
+
       await db.insert(playlistSongs).values({
         playlistId: playlist.id,
-        songId: shuffledSongs[i].id,
+        songId: song.id,
         order: i,
       });
     }
