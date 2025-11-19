@@ -213,3 +213,16 @@ export async function updateTrackImageAction(_: any, formData: FormData) {
     return { success: false, error: 'Failed to upload file' };
   }
 }
+
+// Action untuk clear cache manual
+export async function clearCacheAction() {
+  try {
+    revalidatePath('/', 'layout');
+    revalidatePath('/');
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error clearing cache:', error);
+    return { success: false, error: 'Failed to clear cache' };
+  }
+}
