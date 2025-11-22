@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React, {
   createContext,
@@ -6,8 +6,8 @@ import React, {
   useMemo,
   useOptimistic,
   use,
-} from 'react';
-import { Playlist } from '@/lib/db/types';
+} from "react";
+import { Playlist } from "@/lib/db/types";
 
 type PlaylistContextType = {
   playlists: Playlist[];
@@ -20,8 +20,8 @@ const PlaylistContext = createContext<PlaylistContextType | undefined>(
 );
 
 type OptimisticAction =
-  | { type: 'update'; id: string; updates: Partial<Playlist> }
-  | { type: 'delete'; id: string };
+  | { type: "update"; id: string; updates: Partial<Playlist> }
+  | { type: "delete"; id: string };
 
 export function PlaylistProvider({
   children,
@@ -36,14 +36,14 @@ export function PlaylistProvider({
     initialPlaylists,
     (state: Playlist[], action: OptimisticAction) => {
       switch (action.type) {
-        case 'update':
-          return state.map((playlist) =>
+        case "update":
+          return state.map(playlist =>
             playlist.id === action.id
               ? { ...playlist, ...action.updates }
               : playlist
           );
-        case 'delete':
-          return state.filter((playlist) => playlist.id !== action.id);
+        case "delete":
+          return state.filter(playlist => playlist.id !== action.id);
         default:
           return state;
       }
@@ -51,11 +51,11 @@ export function PlaylistProvider({
   );
 
   const updatePlaylist = (id: string, updates: Partial<Playlist>) => {
-    setOptimisticPlaylists({ type: 'update', id, updates });
+    setOptimisticPlaylists({ type: "update", id, updates });
   };
 
   const deletePlaylist = (id: string) => {
-    setOptimisticPlaylists({ type: 'delete', id });
+    setOptimisticPlaylists({ type: "delete", id });
   };
 
   const value = useMemo(
@@ -77,7 +77,7 @@ export function PlaylistProvider({
 export function usePlaylist() {
   const context = useContext(PlaylistContext);
   if (context === undefined) {
-    throw new Error('usePlaylist must be used within a PlaylistProvider');
+    throw new Error("usePlaylist must be used within a PlaylistProvider");
   }
   return context;
 }

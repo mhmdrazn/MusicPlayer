@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { usePlayback } from '@/app/playback-context';
-import { PlaylistWithSongs, Song } from '@/lib/db/types';
-import { formatDuration, highlightText } from '@/lib/utils';
-import { useRef, useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Play, Pause, Plus } from 'lucide-react';
+import { usePlayback } from "@/app/playback-context";
+import { PlaylistWithSongs, Song } from "@/lib/db/types";
+import { formatDuration, highlightText } from "@/lib/utils";
+import { useRef, useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { MoreHorizontal, Play, Pause, Plus } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,10 +14,10 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { usePlaylist } from '@/app/hooks/use-playlist';
-import { addToPlaylistAction } from '@/app/actions';
-import Image from 'next/image';
+} from "@/components/ui/dropdown-menu";
+import { usePlaylist } from "@/app/hooks/use-playlist";
+import { addToPlaylistAction } from "@/app/actions";
+import Image from "next/image";
 
 function TrackRow({
   track,
@@ -32,7 +32,7 @@ function TrackRow({
   isSelected: boolean;
   onSelect: () => void;
 }) {
-  let {
+  const {
     currentTrack,
     playTrack,
     togglePlayPause,
@@ -40,15 +40,15 @@ function TrackRow({
     setActivePanel,
     handleKeyNavigation,
   } = usePlayback();
-  let { playlists } = usePlaylist();
+  const { playlists } = usePlaylist();
 
-  let [isFocused, setIsFocused] = useState(false);
-  let isProduction = process.env.NEXT_PUBLIC_VERCEL_ENV === 'production';
-  let isCurrentTrack = currentTrack?.name === track.name;
+  const [isFocused, setIsFocused] = useState(false);
+  const isProduction = process.env.NEXT_PUBLIC_VERCEL_ENV === "production";
+  const isCurrentTrack = currentTrack?.name === track.name;
 
   function onClickTrackRow(e: React.MouseEvent) {
     e.preventDefault();
-    setActivePanel('tracklist');
+    setActivePanel("tracklist");
     onSelect();
     if (isCurrentTrack) {
       togglePlayPause();
@@ -58,7 +58,7 @@ function TrackRow({
   }
 
   function onKeyDownTrackRow(e: React.KeyboardEvent<HTMLTableRowElement>) {
-    if (e.key === 'Enter' || e.key === ' ') {
+    if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       onSelect();
       if (isCurrentTrack) {
@@ -67,14 +67,14 @@ function TrackRow({
         playTrack(track);
       }
     } else {
-      handleKeyNavigation(e, 'tracklist');
+      handleKeyNavigation(e, "tracklist");
     }
   }
 
   return (
     <tr
       className={`group cursor-pointer hover:bg-[#1A1A1A] select-none relative ${
-        isCurrentTrack ? 'bg-[#1A1A1A]' : ''
+        isCurrentTrack ? "bg-[#1A1A1A]" : ""
       }`}
       tabIndex={0}
       onClick={onClickTrackRow}
@@ -97,7 +97,7 @@ function TrackRow({
         <div className="flex items-center">
           <div className="relative size-5 mr-2">
             <Image
-              src={track.imageUrl || '/placeholder.svg'}
+              src={track.imageUrl || "/placeholder.svg"}
               alt={`${track.album} cover`}
               fill
               className="object-cover"
@@ -137,7 +137,7 @@ function TrackRow({
             <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuItem
                 className="text-xs"
-                onClick={(e) => {
+                onClick={e => {
                   e.stopPropagation();
                   if (isCurrentTrack) {
                     togglePlayPause();
@@ -164,11 +164,11 @@ function TrackRow({
                   Add to Playlist
                 </DropdownMenuSubTrigger>
                 <DropdownMenuSubContent className="w-48">
-                  {playlists.map((playlist) => (
+                  {playlists.map(playlist => (
                     <DropdownMenuItem
                       className="text-xs"
                       key={playlist.id}
-                      onClick={(e) => {
+                      onClick={e => {
                         e.stopPropagation();
                         addToPlaylistAction(playlist.id, track.id);
                       }}
@@ -196,12 +196,12 @@ export function TrackTable({
   playlist: PlaylistWithSongs;
   query?: string;
 }) {
-  let tableRef = useRef<HTMLTableElement>(null);
-  let { registerPanelRef, setActivePanel, setPlaylist } = usePlayback();
+  const tableRef = useRef<HTMLTableElement>(null);
+  const { registerPanelRef, setActivePanel, setPlaylist } = usePlayback();
   const [selectedTrackId, setSelectedTrackId] = useState<string | null>(null);
 
   useEffect(() => {
-    registerPanelRef('tracklist', tableRef);
+    registerPanelRef("tracklist", tableRef);
   }, [registerPanelRef]);
 
   useEffect(() => {
@@ -212,7 +212,7 @@ export function TrackTable({
     <table
       ref={tableRef}
       className="w-full text-xs"
-      onClick={() => setActivePanel('tracklist')}
+      onClick={() => setActivePanel("tracklist")}
     >
       <thead className="sticky top-0 bg-[#0A0A0A] z-10 border-b border-[#282828]">
         <tr className="text-left text-gray-400">

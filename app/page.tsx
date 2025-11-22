@@ -1,7 +1,7 @@
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { TrackTable } from './p/[id]/track-table';
-import { getAllSongs, searchSongs } from '@/lib/db/queries';
-import { Suspense } from 'react';
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { TrackTable } from "./p/[id]/track-table";
+import { getAllSongs, searchSongs } from "@/lib/db/queries";
+import { Suspense } from "react";
 
 async function Tracks({
   searchParams,
@@ -10,7 +10,7 @@ async function Tracks({
 }) {
   const query = (await searchParams).q;
   const songs = query ? await searchSongs(query) : await getAllSongs();
-  // @ts-ignore
+  // @ts-expect-error: Playlist object structure type mismatch with TrackTable props
   return <TrackTable query={query} playlist={{ songs }} />;
 }
 

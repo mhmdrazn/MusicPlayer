@@ -1,8 +1,7 @@
-
 // import { auth, signIn, signOut } from '@/lib/auth';
-import { Button } from './ui/button';
-import Image from 'next/image';
-import { LogIn, LogOut } from 'lucide-react';
+import { Button } from "./ui/button";
+import Image from "next/image";
+import { LogIn, LogOut } from "lucide-react";
 
 // async function signInAction() {
 //   'use server';
@@ -35,9 +34,9 @@ export async function UserButton() {
         {/* <p className="text-sm text-gray-400">{session.user.email}</p> */}
       </div>
       {/* <form action={signOutAction}> */}
-        <Button variant="ghost">
-          <LogOut />
-        </Button>
+      <Button variant="ghost">
+        <LogOut />
+      </Button>
       {/* </form> */}
     </div>
   );

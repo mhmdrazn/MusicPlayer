@@ -1,7 +1,7 @@
-import NextAuth from 'next-auth';
-import GitHub from 'next-auth/providers/github';
-import { DrizzleAdapter } from '@auth/drizzle-adapter';
-import { db } from '@/lib/db/drizzle';
+import NextAuth from "next-auth";
+import GitHub from "next-auth/providers/github";
+import { DrizzleAdapter } from "@auth/drizzle-adapter";
+import { db } from "@/lib/db/drizzle";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: DrizzleAdapter(db),
@@ -13,7 +13,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ],
   secret: process.env.NEXTAUTH_SECRET,
   session: {
-    strategy: 'jwt',
+    strategy: "jwt",
   },
   callbacks: {
     async session({ session, token }) {

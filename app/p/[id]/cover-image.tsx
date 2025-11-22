@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { uploadPlaylistCoverAction } from '@/app/actions';
-import { Upload, Loader2 } from 'lucide-react';
-import { useActionState } from 'react';
+import { uploadPlaylistCoverAction } from "@/app/actions";
+import { Upload, Loader2 } from "lucide-react";
+import { useActionState } from "react";
 
 export function CoverImage({
   url,
@@ -11,12 +11,15 @@ export function CoverImage({
   url: string | null;
   playlistId: string;
 }) {
-  let [state, formAction, pending] = useActionState(uploadPlaylistCoverAction, {
-    success: false,
-    coverUrl: '',
-  });
+  const [state, formAction, pending] = useActionState(
+    uploadPlaylistCoverAction,
+    {
+      success: false,
+      coverUrl: "",
+    }
+  );
 
-  let currentUrl = state?.success ? state.coverUrl : url;
+  const currentUrl = state?.success ? state.coverUrl : url;
 
   if (currentUrl) {
     return (
@@ -41,14 +44,14 @@ export function CoverImage({
           name="file"
           accept="image/*"
           className="hidden"
-          onChange={(e) => {
+          onChange={e => {
             const file = e.target.files?.[0];
             if (file) {
               if (file.size <= 5 * 1024 * 1024) {
                 e.target.form?.requestSubmit();
               } else {
-                alert('File size exceeds 5MB limit');
-                e.target.value = '';
+                alert("File size exceeds 5MB limit");
+                e.target.value = "";
               }
             }
           }}

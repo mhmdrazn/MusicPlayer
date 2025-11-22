@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   createContext,
@@ -8,10 +8,10 @@ import {
   ReactNode,
   useRef,
   useCallback,
-} from 'react';
-import { Song } from '@/lib/db/types';
+} from "react";
+import { Song } from "@/lib/db/types";
 
-type Panel = 'sidebar' | 'tracklist';
+type Panel = "sidebar" | "tracklist";
 
 type PlaybackContextType = {
   isPlaying: boolean;
@@ -37,7 +37,7 @@ const PlaybackContext = createContext<PlaybackContextType | undefined>(
 );
 
 function useKeyboardNavigation() {
-  const [activePanel, setActivePanel] = useState<Panel>('sidebar');
+  const [activePanel, setActivePanel] = useState<Panel>("sidebar");
   const panelRefs = useRef<Record<Panel, React.RefObject<HTMLElement> | null>>({
     sidebar: null,
     tracklist: null,
@@ -61,22 +61,24 @@ function useKeyboardNavigation() {
       const currentIndex = items.indexOf(document.activeElement as HTMLElement);
 
       switch (e.key) {
-        case 'ArrowDown':
-        case 'j':
+        case "ArrowDown":
+        case "j": {
           e.preventDefault();
           const nextIndex = (currentIndex + 1) % items.length;
           (items[nextIndex] as HTMLElement).focus();
           break;
-        case 'ArrowUp':
-        case 'k':
+        }
+        case "ArrowUp":
+        case "k": {
           e.preventDefault();
           const prevIndex = (currentIndex - 1 + items.length) % items.length;
           (items[prevIndex] as HTMLElement).focus();
           break;
-        case 'h':
-          if (panel === 'tracklist') {
+        }
+        case "h":
+          if (panel === "tracklist") {
             e.preventDefault();
-            setActivePanel('sidebar');
+            setActivePanel("sidebar");
             const sidebarFirstItem =
               panelRefs.current.sidebar?.current?.querySelector(
                 '[tabindex="0"]'
@@ -84,10 +86,10 @@ function useKeyboardNavigation() {
             sidebarFirstItem?.focus();
           }
           break;
-        case 'l':
-          if (panel === 'sidebar') {
+        case "l":
+          if (panel === "sidebar") {
             e.preventDefault();
-            setActivePanel('tracklist');
+            setActivePanel("tracklist");
             const tracklistFirstItem =
               panelRefs.current.tracklist?.current?.querySelector(
                 '[tabindex="0"]'
@@ -134,7 +136,7 @@ export function PlaybackProvider({ children }: { children: ReactNode }) {
         audioRef.current.src = getAudioSrc(track.audioUrl as string);
         audioRef.current.play();
       }
-      setActivePanel('tracklist');
+      setActivePanel("tracklist");
     },
     [setActivePanel]
   );
@@ -142,7 +144,7 @@ export function PlaybackProvider({ children }: { children: ReactNode }) {
   const playNextTrack = useCallback(() => {
     if (currentTrack && playlist.length > 0) {
       const currentIndex = playlist.findIndex(
-        (track) => track.id === currentTrack.id
+        track => track.id === currentTrack.id
       );
       const nextIndex = (currentIndex + 1) % playlist.length;
       playTrack(playlist[nextIndex]);
@@ -152,7 +154,7 @@ export function PlaybackProvider({ children }: { children: ReactNode }) {
   const playPreviousTrack = useCallback(() => {
     if (currentTrack && playlist.length > 0) {
       const currentIndex = playlist.findIndex(
-        (track) => track.id === currentTrack.id
+        track => track.id === currentTrack.id
       );
       const previousIndex =
         (currentIndex - 1 + playlist.length) % playlist.length;
@@ -161,19 +163,19 @@ export function PlaybackProvider({ children }: { children: ReactNode }) {
   }, [currentTrack, playlist, playTrack]);
 
   const getAudioSrc = (url: string) => {
-    if (url.startsWith('file://')) {
-      const filename = url.split('/').pop();
-      return `/api/audio/${encodeURIComponent(filename || '')}`;
+    if (url.startsWith("file://")) {
+      const filename = url.split("/").pop();
+      return `/api/audio/${encodeURIComponent(filename || "")}`;
     }
     return url;
   };
 
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
-      if (e.key === ' ' && e.target === document.body) {
+      if (e.key === " " && e.target === document.body) {
         e.preventDefault();
         togglePlayPause();
-      } else if (e.key === '/') {
+      } else if (e.key === "/") {
         e.preventDefault();
         const searchInput = document.querySelector(
           'input[type="search"]'
@@ -182,8 +184,8 @@ export function PlaybackProvider({ children }: { children: ReactNode }) {
       }
     };
 
-    window.addEventListener('keydown', handleGlobalKeyDown);
-    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+    window.addEventListener("keydown", handleGlobalKeyDown);
+    return () => window.removeEventListener("keydown", handleGlobalKeyDown);
   }, [togglePlayPause]);
 
   return (
@@ -215,7 +217,7 @@ export function PlaybackProvider({ children }: { children: ReactNode }) {
 export function usePlayback() {
   const context = useContext(PlaybackContext);
   if (context === undefined) {
-    throw new Error('usePlayback must be used within a PlaybackProvider');
+    throw new Error("usePlayback must be used within a PlaybackProvider");
   }
   return context;
 }

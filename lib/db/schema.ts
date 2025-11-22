@@ -1,4 +1,4 @@
-import { relations, sql } from 'drizzle-orm';
+import { relations, sql } from "drizzle-orm";
 import {
   pgTable,
   text,
@@ -9,97 +9,97 @@ import {
   index,
   uniqueIndex,
   primaryKey,
-} from 'drizzle-orm/pg-core';
+} from "drizzle-orm/pg-core";
 
-export let songs = pgTable(
-  'songs',
+export const songs = pgTable(
+  "songs",
   {
-    id: uuid('id').primaryKey().defaultRandom(),
-    name: text('name').notNull(),
-    artist: text('artist').notNull(),
-    album: text('album'),
-    duration: integer('duration').notNull(), // Duration in seconds
-    genre: text('genre'),
-    bpm: integer('bpm'),
-    key: text('key'),
-    imageUrl: text('image_url'),
-    audioUrl: text('audio_url').notNull(),
-    isLocal: boolean('is_local').notNull().default(true),
-    createdAt: timestamp('created_at').notNull().defaultNow(),
-    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    artist: text("artist").notNull(),
+    album: text("album"),
+    duration: integer("duration").notNull(), // Duration in seconds
+    genre: text("genre"),
+    bpm: integer("bpm"),
+    key: text("key"),
+    imageUrl: text("image_url"),
+    audioUrl: text("audio_url").notNull(),
+    isLocal: boolean("is_local").notNull().default(true),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (table) => ({
-    nameIndex: index('idx_songs_name').on(table.name),
-    artistIndex: index('idx_songs_artist').on(table.artist),
-    albumIndex: index('idx_songs_album').on(table.album),
-    genreIndex: index('idx_songs_genre').on(table.genre),
-    bpmIndex: index('idx_songs_bpm').on(table.bpm),
-    keyIndex: index('idx_songs_key').on(table.key),
-    createdAtIndex: index('idx_songs_created_at').on(table.createdAt),
-    nameTrigramIndex: index('idx_songs_name_trgm').using(
-      'gin',
+  table => ({
+    nameIndex: index("idx_songs_name").on(table.name),
+    artistIndex: index("idx_songs_artist").on(table.artist),
+    albumIndex: index("idx_songs_album").on(table.album),
+    genreIndex: index("idx_songs_genre").on(table.genre),
+    bpmIndex: index("idx_songs_bpm").on(table.bpm),
+    keyIndex: index("idx_songs_key").on(table.key),
+    createdAtIndex: index("idx_songs_created_at").on(table.createdAt),
+    nameTrigramIndex: index("idx_songs_name_trgm").using(
+      "gin",
       sql`${table.name} gin_trgm_ops`
     ),
-    artistTrigramIndex: index('idx_songs_artist_trgm').using(
-      'gin',
+    artistTrigramIndex: index("idx_songs_artist_trgm").using(
+      "gin",
       sql`${table.artist} gin_trgm_ops`
     ),
-    albumTrigramIndex: index('idx_songs_album_trgm').using(
-      'gin',
+    albumTrigramIndex: index("idx_songs_album_trgm").using(
+      "gin",
       sql`${table.album} gin_trgm_ops`
     ),
   })
 );
 
-export let playlists = pgTable(
-  'playlists',
+export const playlists = pgTable(
+  "playlists",
   {
-    id: uuid('id').primaryKey().defaultRandom(),
-    name: text('name').notNull(),
-    coverUrl: text('cover_url'),
-    createdAt: timestamp('created_at').notNull().defaultNow(),
-    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    coverUrl: text("cover_url"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (table) => ({
-    nameIndex: index('idx_playlists_name').on(table.name),
-    createdAtIndex: index('idx_playlists_created_at').on(table.createdAt),
+  table => ({
+    nameIndex: index("idx_playlists_name").on(table.name),
+    createdAtIndex: index("idx_playlists_created_at").on(table.createdAt),
   })
 );
 
-export let playlistSongs = pgTable(
-  'playlist_songs',
+export const playlistSongs = pgTable(
+  "playlist_songs",
   {
-    id: uuid('id').primaryKey().defaultRandom(),
-    playlistId: uuid('playlist_id')
+    id: uuid("id").primaryKey().defaultRandom(),
+    playlistId: uuid("playlist_id")
       .notNull()
       .references(() => playlists.id),
-    songId: uuid('song_id')
+    songId: uuid("song_id")
       .notNull()
       .references(() => songs.id),
-    order: integer('order').notNull(),
+    order: integer("order").notNull(),
   },
-  (table) => ({
-    playlistIdIndex: index('idx_playlist_songs_playlist_id').on(
+  table => ({
+    playlistIdIndex: index("idx_playlist_songs_playlist_id").on(
       table.playlistId
     ),
-    songIdIndex: index('idx_playlist_songs_song_id').on(table.songId),
-    orderIndex: index('idx_playlist_songs_order').on(table.order),
-    uniquePlaylistSongIndex: uniqueIndex('unq_playlist_song').on(
+    songIdIndex: index("idx_playlist_songs_song_id").on(table.songId),
+    orderIndex: index("idx_playlist_songs_order").on(table.order),
+    uniquePlaylistSongIndex: uniqueIndex("unq_playlist_song").on(
       table.playlistId,
       table.songId
     ),
   })
 );
 
-export let songsRelations = relations(songs, ({ many }) => ({
+export const songsRelations = relations(songs, ({ many }) => ({
   playlistSongs: many(playlistSongs),
 }));
 
-export let playlistsRelations = relations(playlists, ({ many }) => ({
+export const playlistsRelations = relations(playlists, ({ many }) => ({
   playlistSongs: many(playlistSongs),
 }));
 
-export let playlistSongsRelations = relations(playlistSongs, ({ one }) => ({
+export const playlistSongsRelations = relations(playlistSongs, ({ one }) => ({
   playlist: one(playlists, {
     fields: [playlistSongs.playlistId],
     references: [playlists.id],
@@ -111,57 +111,57 @@ export let playlistSongsRelations = relations(playlistSongs, ({ one }) => ({
 }));
 
 export const users = pgTable("user", {
-	id: text("id")
-		.primaryKey()
-		.$defaultFn(() => crypto.randomUUID()),
-	name: text("name"),
-	email: text("email").notNull(),
-	emailVerified: timestamp("emailVerified", { mode: "date" }),
-	image: text("image"),
-})
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  name: text("name"),
+  email: text("email").notNull(),
+  emailVerified: timestamp("emailVerified", { mode: "date" }),
+  image: text("image"),
+});
 
 export const accounts = pgTable(
-	"account",
-	{
-		userId: text("userId")
-			.notNull()
-			.references(() => users.id, { onDelete: "cascade" }),
-		type: text("type").$type<"oauth" | "oidc" | "email">().notNull(),
-		provider: text("provider").notNull(),
-		providerAccountId: text("providerAccountId").notNull(),
-		refresh_token: text("refresh_token"),
-		access_token: text("access_token"),
-		expires_at: integer("expires_at"),
-		token_type: text("token_type"),
-		scope: text("scope"),
-		id_token: text("id_token"),
-		session_state: text("session_state"),
-	},
-	(account) => ({
-		compoundKey: primaryKey({
-			columns: [account.provider, account.providerAccountId],
-		}),
-	})
-)
+  "account",
+  {
+    userId: text("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    type: text("type").$type<"oauth" | "oidc" | "email">().notNull(),
+    provider: text("provider").notNull(),
+    providerAccountId: text("providerAccountId").notNull(),
+    refresh_token: text("refresh_token"),
+    access_token: text("access_token"),
+    expires_at: integer("expires_at"),
+    token_type: text("token_type"),
+    scope: text("scope"),
+    id_token: text("id_token"),
+    session_state: text("session_state"),
+  },
+  account => ({
+    compoundKey: primaryKey({
+      columns: [account.provider, account.providerAccountId],
+    }),
+  })
+);
 
 export const sessions = pgTable("session", {
-	sessionToken: text("sessionToken").primaryKey(),
-	userId: text("userId")
-		.notNull()
-		.references(() => users.id, { onDelete: "cascade" }),
-	expires: timestamp("expires", { mode: "date" }).notNull(),
-})
+  sessionToken: text("sessionToken").primaryKey(),
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  expires: timestamp("expires", { mode: "date" }).notNull(),
+});
 
 export const verificationTokens = pgTable(
-	"verificationToken",
-	{
-		identifier: text("identifier").notNull(),
-		token: text("token").notNull(),
-		expires: timestamp("expires", { mode: "date" }).notNull(),
-	},
-	(verificationToken) => ({
-		compositePk: primaryKey({
-			columns: [verificationToken.identifier, verificationToken.token],
-		}),
-	})
-)
+  "verificationToken",
+  {
+    identifier: text("identifier").notNull(),
+    token: text("token").notNull(),
+    expires: timestamp("expires", { mode: "date" }).notNull(),
+  },
+  verificationToken => ({
+    compositePk: primaryKey({
+      columns: [verificationToken.identifier, verificationToken.token],
+    }),
+  })
+);

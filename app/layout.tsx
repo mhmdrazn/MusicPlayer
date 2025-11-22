@@ -1,28 +1,28 @@
-import './globals.css';
-import type { Metadata, Viewport } from 'next';
-import { Inter } from 'next/font/google';
-import { NowPlaying } from './now-playing';
-import { PlaybackProvider } from './playback-context';
-import { getAllPlaylists } from '@/lib/db/queries';
-import { OptimisticPlaylists } from './optimistic-playlists';
-import { PlaylistProvider } from './hooks/use-playlist';
-import { PlaybackControls } from './playback-controls';
-import { UserButton } from '@/components/user-button';
+import "./globals.css";
+import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
+import { NowPlaying } from "./now-playing";
+import { PlaybackProvider } from "./playback-context";
+import { getAllPlaylists } from "@/lib/db/queries";
+import { OptimisticPlaylists } from "./optimistic-playlists";
+import { PlaylistProvider } from "./hooks/use-playlist";
+import { PlaybackControls } from "./playback-controls";
+import { UserButton } from "@/components/user-button";
 
 export const metadata: Metadata = {
-  title: 'Next.js Music Player',
-  description: 'A music player built with Next.js.',
+  title: "Next.js Music Player",
+  description: "A music player built with Next.js.",
 };
 
 export const viewport: Viewport = {
-  width: 'device-width',
+  width: "device-width",
   initialScale: 1,
   maximumScale: 1,
-  viewportFit: 'cover',
-  themeColor: '#0A0A0A',
+  viewportFit: "cover",
+  themeColor: "#0A0A0A",
 };
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({
   children,
