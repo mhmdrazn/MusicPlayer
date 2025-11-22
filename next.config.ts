@@ -11,11 +11,13 @@ const nextConfig: NextConfig = {
       bodySizeLimit: '5mb',
     },
   },
+
+  output: 'standalone',
   images: {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'ijlyviwppydvzsmm.public.blob.vercel-storage.com',
+        hostname: '*.public.blob.vercel-storage.com',
         port: '',
         pathname: '/**',
         search: '',

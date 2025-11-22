@@ -2,7 +2,7 @@
 
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Plus, MoreVertical, Trash } from 'lucide-react';
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,7 @@ import {
 import { Playlist } from '@/lib/db/types';
 import { v4 as uuidv4 } from 'uuid';
 import { SearchInput } from './search';
+import { UserButton } from '@/components/user-button';
 
 let isProduction = process.env.NEXT_PUBLIC_VERCEL_ENV === 'production';
 
@@ -25,21 +26,48 @@ function PlaylistRow({ playlist }: { playlist: Playlist }) {
   let pathname = usePathname();
   let router = useRouter();
   let { deletePlaylist } = usePlaylist();
+  let [isPending, startTransition] = useTransition();
+  let [isDeleting, setIsDeleting] = useState(false);
 
   async function handleDeletePlaylist(id: string) {
-    deletePlaylist(id);
+    if (isDeleting) return; // Prevent double clicks
+    
+    setIsDeleting(true);
 
-    if (pathname === `/p/${id}`) {
-      router.prefetch('/');
-      router.push('/');
-    }
+    startTransition(async () => {
+      try {
+        // 1. Redirect dulu jika sedang di halaman playlist yang akan dihapus
+        if (pathname === `/p/${id}`) {
+          router.push('/');
+        }
 
-    deletePlaylistAction(id);
-    router.refresh();
+        // 2. Optimistic update - hapus dari UI dulu
+        deletePlaylist(id);
+
+        // 3. Delete dari server
+        const result = await deletePlaylistAction(id);
+
+        // 4. Cek hasil
+        if (result && result.error) {
+          console.error('Failed to delete playlist:', result.error);
+          // Rollback dengan refresh data dari server
+          router.refresh();
+        } else {
+          // 5. Refresh untuk sinkronisasi final
+          router.refresh();
+        }
+      } catch (error) {
+        console.error('Error deleting playlist:', error);
+        // Rollback dengan refresh data dari server
+        router.refresh();
+      } finally {
+        setIsDeleting(false);
+      }
+    });
   }
 
   return (
-    <li className="group relative">
+    <li className={`group relative ${isPending || isDeleting ? 'opacity-50 pointer-events-none' : ''}`}>
       <Link
         prefetch={true}
         href={`/p/${playlist.id}`}
@@ -57,6 +85,7 @@ function PlaylistRow({ playlist }: { playlist: Playlist }) {
               variant="ghost"
               size="icon"
               className="h-6 w-6 text-gray-400 hover:text-white focus:text-white"
+              disabled={isPending || isDeleting}
             >
               <MoreVertical className="h-4 w-4" />
               <span className="sr-only">Playlist options</span>
@@ -64,12 +93,12 @@ function PlaylistRow({ playlist }: { playlist: Playlist }) {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-36">
             <DropdownMenuItem
-              disabled={isProduction}
+              disabled={isProduction || isPending || isDeleting}
               onClick={() => handleDeletePlaylist(playlist.id)}
               className="text-xs"
             >
               <Trash className="mr-2 size-3" />
-              Delete Playlist
+              {isDeleting ? 'Deleting...' : 'Delete Playlist'}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -84,34 +113,54 @@ export function OptimisticPlaylists() {
   let pathname = usePathname();
   let router = useRouter();
   let { registerPanelRef, handleKeyNavigation, setActivePanel } = usePlayback();
+  let [isAdding, setIsAdding] = useState(false);
 
   useEffect(() => {
     registerPanelRef('sidebar', playlistsContainerRef);
   }, [registerPanelRef]);
 
   async function addPlaylistAction() {
-    let newPlaylistId = uuidv4();
-    let newPlaylist = {
-      id: newPlaylistId,
-      name: 'New Playlist',
-      coverUrl: '',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
+    if (isAdding) return; // Prevent double clicks
+    
+    setIsAdding(true);
+    
+    try {
+      let newPlaylistId = uuidv4();
+      let newPlaylist = {
+        id: newPlaylistId,
+        name: 'New Playlist',
+        coverUrl: '',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
 
-    updatePlaylist(newPlaylistId, newPlaylist);
-    router.prefetch(`/p/${newPlaylistId}`);
-    router.push(`/p/${newPlaylistId}`);
-    createPlaylistAction(newPlaylistId, 'New Playlist');
-    router.refresh();
+      // Optimistic update
+      updatePlaylist(newPlaylistId, newPlaylist);
+      
+      // Navigate
+      router.prefetch(`/p/${newPlaylistId}`);
+      router.push(`/p/${newPlaylistId}`);
+      
+      // Server action
+      await createPlaylistAction(newPlaylistId, 'New Playlist');
+      
+      // Refresh
+      router.refresh();
+    } catch (error) {
+      console.error('Error creating playlist:', error);
+      router.refresh();
+    } finally {
+      setIsAdding(false);
+    }
   }
 
   return (
     <div
-      className="hidden md:block w-56 bg-[#121212] h-[100dvh] overflow-auto"
+      className="hidden md:flex md:flex-col w-56 bg-[#121212] h-[100dvh] border-r border-gray-800"
       onClick={() => setActivePanel('sidebar')}
     >
-      <div className="m-4">
+      {/* Header Section */}
+      <div className="flex-shrink-0 px-4 pt-4 pb-2">
         <SearchInput />
         <div className="mb-6">
           <Link
@@ -132,7 +181,7 @@ export function OptimisticPlaylists() {
           </Link>
           <form action={addPlaylistAction}>
             <Button
-              disabled={isProduction}
+              disabled={isProduction || isAdding}
               variant="ghost"
               size="icon"
               className="h-5 w-5"
@@ -144,17 +193,23 @@ export function OptimisticPlaylists() {
           </form>
         </div>
       </div>
-      <ScrollArea className="h-[calc(100dvh-180px)]">
+      
+      {/* Scrollable Playlist Area */}
+      <ScrollArea className="flex-1 min-h-0 px-0">
         <ul
           ref={playlistsContainerRef}
-          className="space-y-0.5 text-xs mt-[1px]"
+          className="space-y-0.5 text-xs"
           onKeyDown={(e) => handleKeyNavigation(e, 'sidebar')}
         >
-          {playlists.map((playlist) => (
+          {playlists.map((playlist) => (   
             <PlaylistRow key={playlist.id} playlist={playlist} />
           ))}
         </ul>
       </ScrollArea>
+      
+      <div className="pb-16 mb-2 flex-shrink-0 border-t border-gray-800">
+        <UserButton />
+      </div>
     </div>
   );
 }

@@ -143,6 +143,25 @@ async function seedPlaylists() {
     );
     const shuffledSongs = allSongs.sort(() => 0.5 - Math.random());
 
+    // Ensure we have a valid playlist id. Some DB drivers/clients may not
+    // return the inserted row by default when calling `.returning()`.
+    if (!playlist || !('id' in playlist) || !playlist.id) {
+      // try to re-fetch by name as a fallback
+      const found = await db
+        .select()
+        .from(playlists)
+        .where(eq(playlists.name, name))
+        .limit(1);
+      if (found.length > 0) {
+        playlist = found[0];
+      }
+    }
+
+    if (!playlist || !('id' in playlist) || !playlist.id) {
+      console.warn(`Could not determine id for playlist: ${name}, skipping`);
+      continue;
+    }
+
     // Remove existing playlist songs
     await db
       .delete(playlistSongs)
