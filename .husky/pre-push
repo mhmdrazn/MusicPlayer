@@ -1,0 +1,14 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo "➡️  Running pre-push checks: tests (Jest)"
+# Run tests before push
+if pnpm -s test --silent; then
+	echo "✅  pre-push: tests passed"
+else
+	echo "❌  pre-push: tests failed — fix failing tests before pushing"
+	echo "    Tip: run 'pnpm run test' locally to see failures."
+	exit 1
+fi
+
+echo "ℹ️  If tests are slow, consider running only affected tests locally before pushing."

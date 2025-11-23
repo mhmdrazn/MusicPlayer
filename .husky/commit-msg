@@ -1,0 +1,11 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo "➡️  Validating commit message (commitlint)"
+if pnpm -s commitlint --edit "$1"; then
+	echo "✅  commit-msg: commit message valid"
+else
+	echo "❌  commit-msg: invalid commit message — please follow Conventional Commits (e.g. feat(scope): subject)."
+	echo "    Tip: run 'pnpm run commitlint -- --edit <file>' or use your editor to edit the message before committing."
+	exit 1
+fi

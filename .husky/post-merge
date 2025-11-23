@@ -1,0 +1,10 @@
+#!/bin/sh
+. "$(dirname \"$0\")/_/husky.sh"
+
+echo "➡️  post-merge: ensuring dependencies are installed/updated"
+if pnpm -s install; then
+	echo "✅  post-merge: dependencies installed/updated"
+else
+	echo "❌  post-merge: failed to install dependencies after merge"
+	echo "    Tip: run 'pnpm install' and resolve any install errors"
+fi

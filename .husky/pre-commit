@@ -1,0 +1,12 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo "➡️  Running pre-commit checks: lint-staged (Prettier + fixes)"
+if pnpm -s lint-staged; then
+	echo "✅  pre-commit: lint-staged passed"
+else
+	echo "❌  pre-commit: lint-staged failed — please fix the issues above and try again"
+	exit 1
+fi
+
+echo "ℹ️  You can run 'pnpm run format' and 'pnpm run lint' locally to reproduce checks."

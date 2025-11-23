@@ -1,0 +1,12 @@
+#!/bin/sh
+. "$(dirname \"$0\")/_/husky.sh"
+
+echo "➡️  pre-rebase: checking working tree cleanliness"
+# Ensure working tree is clean before rebase
+if [ -n "$(git status --porcelain)" ]; then
+  echo "❌  pre-rebase: working tree not clean. Please commit or stash changes before rebase."
+  echo "    Tip: run 'git status' and either commit or 'git stash' your changes."
+  exit 1
+else
+  echo "✅  pre-rebase: working tree clean"
+fi
