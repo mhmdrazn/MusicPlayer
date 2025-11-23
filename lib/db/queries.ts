@@ -8,7 +8,10 @@ export let getAllSongs = unstable_cache(
     return db.select().from(songs).orderBy(asc(songs.name));
   },
   ['all-songs'],
-  { tags: ['songs'] }
+  { 
+    tags: ['songs'],
+    revalidate: 60 // Revalidate setiap 60 detik (opsional)
+  }
 );
 
 export let getSongById = unstable_cache(
@@ -76,6 +79,7 @@ export let addSongToPlaylist = async (
     .insert(playlistSongs)
     .values({ playlistId, songId, order });
   revalidateTag('playlists');
+  revalidateTag('songs'); // Tambahkan ini
   return result;
 };
 
@@ -92,6 +96,7 @@ export let removeSongFromPlaylist = async (
       )
     );
   revalidateTag('playlists');
+  revalidateTag('songs'); // Tambahkan ini
   return result;
 };
 
@@ -153,7 +158,7 @@ export let searchSongs = unstable_cache(
       })
       .from(songs)
       .orderBy(desc(similarityExpression), asc(songs.name))
-      .limit(50);
+      .limit(100); // Naikin dari 50 jadi 100
   },
   ['search-songs'],
   { tags: ['songs'] }
@@ -166,3 +171,12 @@ export let getRecentlyAddedSongs = unstable_cache(
   ['recently-added-songs'],
   { tags: ['songs'] }
 );
+
+// Tambahkan helper function untuk clear cache manual
+export let clearSongsCache = () => {
+  revalidateTag('songs');
+};
+
+export let clearPlaylistsCache = () => {
+  revalidateTag('playlists');
+};
