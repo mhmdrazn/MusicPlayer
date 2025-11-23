@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Base theme tokens */
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -24,6 +25,8 @@
     --input: 0 0% 89.8%;
     --ring: 0 0% 3.9%;
     --radius: 0.5rem;
+
+    /* charts */
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
@@ -31,6 +34,7 @@
     --chart-5: 27 87% 67%;
   }
 
+  /* Dark Mode */
   .dark {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
@@ -51,6 +55,8 @@
     --border: 0 0% 14.9%;
     --input: 0 0% 14.9%;
     --ring: 0 0% 83.1%;
+
+    /* charts dark */
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
@@ -59,17 +65,34 @@
   }
 }
 
+/* Apply tokens */
 @layer base {
   * {
     @apply border-border;
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground transition-colors;
+    -webkit-tap-highlight-color: transparent;
   }
 }
 
-/* There's custom focus styles for the TrackTable */
+/* Custom scrollbars (important for music player UI) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground));
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Custom focus for TrackTable */
 tr:focus {
   outline: none;
 }

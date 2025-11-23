@@ -8,6 +8,7 @@ import { OptimisticPlaylists } from './optimistic-playlists';
 import { PlaylistProvider } from './hooks/use-playlist';
 import { PlaybackControls } from './playback-controls';
 import { UserButton } from '@/components/user-button';
+import { ThemeProvider } from '@/components/theme-provider';
 
 export const metadata: Metadata = {
   title: 'Next.js Music Player',
@@ -24,25 +25,33 @@ export const viewport: Viewport = {
 
 const inter = Inter({ subsets: ['latin'] });
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   const playlistsPromise = getAllPlaylists();
 
   return (
     <html lang="en" className={inter.className}>
-      <body className="dark flex flex-col md:flex-row h-[100dvh] text-gray-200 bg-[#0A0A0A]">
-        <PlaybackProvider>
-          <PlaylistProvider playlistsPromise={playlistsPromise}>
-            <OptimisticPlaylists />
-            <UserButton />
-            {children}
-          </PlaylistProvider>
-          <NowPlaying />
-          <PlaybackControls />
-        </PlaybackProvider>
+      {/* ThemeProvider MUST wrap body content */}
+      <body className="flex flex-col md:flex-row h-[100dvh] bg-background text-foreground antialiased">
+        <ThemeProvider>
+          <PlaybackProvider>
+            <PlaylistProvider playlistsPromise={playlistsPromise}>
+              {/* Sidebar playlists */}
+              <OptimisticPlaylists />
+
+              {/* User account button */}
+              <div className="absolute top-4 right-4 z-50">
+                <UserButton />
+              </div>
+
+              {/* Main content */}
+              {children}
+            </PlaylistProvider>
+
+            {/* Bottom playback UI */}
+            <NowPlaying />
+            <PlaybackControls />
+          </PlaybackProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -19,6 +19,14 @@ import { usePlaylist } from '@/app/hooks/use-playlist';
 import { addToPlaylistAction } from '@/app/actions';
 import Image from 'next/image';
 
+/* ================================
+   FIX #3 — CLEAN TITLE FUNCTION
+   Menghilangkan "[...]" dari title
+   ================================ */
+function cleanTitle(name: string) {
+  return name.replace(/\s*\[[^\]]*\]\s*/g, '').trim();
+}
+
 function TrackRow({
   track,
   index,
@@ -32,19 +40,15 @@ function TrackRow({
   isSelected: boolean;
   onSelect: () => void;
 }) {
-  let {
-    currentTrack,
-    playTrack,
-    togglePlayPause,
-    isPlaying,
-    setActivePanel,
-    handleKeyNavigation,
-  } = usePlayback();
+  let { currentTrack, playTrack, togglePlayPause, isPlaying, setActivePanel, handleKeyNavigation } =
+    usePlayback();
   let { playlists } = usePlaylist();
 
   let [isFocused, setIsFocused] = useState(false);
   let isProduction = process.env.NEXT_PUBLIC_VERCEL_ENV === 'production';
-  let isCurrentTrack = currentTrack?.name === track.name;
+
+  let cleanedName = cleanTitle(track.name);
+  let isCurrentTrack = currentTrack?.name === track?.name;
 
   function onClickTrackRow(e: React.MouseEvent) {
     e.preventDefault();
@@ -73,8 +77,8 @@ function TrackRow({
 
   return (
     <tr
-      className={`group cursor-pointer hover:bg-[#1A1A1A] select-none relative ${
-        isCurrentTrack ? 'bg-[#1A1A1A]' : ''
+      className={`group cursor-pointer hover:bg-muted select-none relative transition-colors ${
+        isCurrentTrack ? 'bg-muted' : ''
       }`}
       tabIndex={0}
       onClick={onClickTrackRow}
@@ -85,14 +89,15 @@ function TrackRow({
       <td className="py-[2px] pl-3 pr-2 tabular-nums w-10 text-center">
         {isCurrentTrack && isPlaying ? (
           <div className="flex items-end justify-center space-x-[2px] size-[0.65rem] mx-auto">
-            <div className="w-1 bg-neutral-600 animate-now-playing-1"></div>
-            <div className="w-1 bg-neutral-600 animate-now-playing-2 [animation-delay:0.2s]"></div>
-            <div className="w-1 bg-neutral-600 animate-now-playing-3 [animation-delay:0.4s]"></div>
+            <div className="w-1 bg-foreground animate-now-playing-1"></div>
+            <div className="w-1 bg-foreground animate-now-playing-2 [animation-delay:0.2s]"></div>
+            <div className="w-1 bg-foreground animate-now-playing-3 [animation-delay:0.4s]"></div>
           </div>
         ) : (
-          <span className="text-gray-400">{index + 1}</span>
+          <span className="text-muted-foreground">{index + 1}</span>
         )}
       </td>
+
       <td className="py-[2px] px-2">
         <div className="flex items-center">
           <div className="relative size-5 mr-2">
@@ -100,26 +105,32 @@ function TrackRow({
               src={track.imageUrl || '/placeholder.svg'}
               alt={`${track.album} cover`}
               fill
-              className="object-cover"
+              className="object-cover rounded-sm"
             />
           </div>
-          <div className="font-medium truncate max-w-[180px] sm:max-w-[200px] text-[#d1d5db]">
-            {highlightText(track.name, query)}
-            <span className="sm:hidden text-gray-400 ml-1">
+
+          {/* FIX: gunakan cleanTitle() */}
+          <div className="font-medium truncate max-w-[400px] sm:max-w-[200px] text-foreground">
+            {highlightText(cleanedName, query)}
+            <span className="sm:hidden text-muted-foreground ml-1">
               • {highlightText(track.artist, query)}
             </span>
           </div>
         </div>
       </td>
-      <td className="py-[2px] px-2 hidden sm:table-cell text-[#d1d5db] max-w-40 truncate">
+
+      <td className="py-[2px] px-2 hidden sm:table-cell text-foreground max-w-40 truncate">
         {highlightText(track.artist, query)}
       </td>
-      <td className="py-[2px] px-2 hidden md:table-cell text-[#d1d5db]">
+
+      <td className="py-[2px] px-2 hidden md:table-cell text-foreground">
         {highlightText(track.album!, query)}
       </td>
-      <td className="py-[2px] px-2 tabular-nums text-[#d1d5db]">
+
+      <td className="py-[2px] px-2 tabular-nums text-foreground">
         {formatDuration(track.duration)}
       </td>
+
       <td className="py-[2px] px-2">
         <div className="opacity-0 group-hover:opacity-100 transition-opacity">
           <DropdownMenu>
@@ -128,22 +139,19 @@ function TrackRow({
                 disabled={isProduction}
                 variant="ghost"
                 size="icon"
-                className="h-5 w-5 text-gray-400 hover:text-white focus:text-white"
+                className="h-5 w-5 text-muted-foreground hover:text-foreground focus:text-foreground"
               >
                 <MoreHorizontal className="size-4" />
-                <span className="sr-only">Track options</span>
               </Button>
             </DropdownMenuTrigger>
+
             <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuItem
                 className="text-xs"
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (isCurrentTrack) {
-                    togglePlayPause();
-                  } else {
-                    playTrack(track);
-                  }
+                  if (isCurrentTrack) togglePlayPause();
+                  else playTrack(track);
                 }}
               >
                 {isCurrentTrack && isPlaying ? (
@@ -158,11 +166,13 @@ function TrackRow({
                   </>
                 )}
               </DropdownMenuItem>
+
               <DropdownMenuSub>
                 <DropdownMenuSubTrigger className="text-xs">
                   <Plus className="mr-2 size-3" />
                   Add to Playlist
                 </DropdownMenuSubTrigger>
+
                 <DropdownMenuSubContent className="w-48">
                   {playlists.map((playlist) => (
                     <DropdownMenuItem
@@ -182,20 +192,15 @@ function TrackRow({
           </DropdownMenu>
         </div>
       </td>
+
       {(isSelected || isFocused) && (
-        <div className="absolute inset-0 border border-[#1e3a8a] pointer-events-none" />
+        <div className="absolute inset-0 border border-primary pointer-events-none" />
       )}
     </tr>
   );
 }
 
-export function TrackTable({
-  playlist,
-  query,
-}: {
-  playlist: PlaylistWithSongs;
-  query?: string;
-}) {
+export function TrackTable({ playlist, query }: { playlist: PlaylistWithSongs; query?: string }) {
   let tableRef = useRef<HTMLTableElement>(null);
   let { registerPanelRef, setActivePanel, setPlaylist } = usePlayback();
   const [selectedTrackId, setSelectedTrackId] = useState<string | null>(null);
@@ -211,11 +216,11 @@ export function TrackTable({
   return (
     <table
       ref={tableRef}
-      className="w-full text-xs"
+      className="w-full text-xs text-foreground transition-colors"
       onClick={() => setActivePanel('tracklist')}
     >
-      <thead className="sticky top-0 bg-[#0A0A0A] z-10 border-b border-[#282828]">
-        <tr className="text-left text-gray-400">
+      <thead className="sticky top-0 bg-background z-10 border-b border-border">
+        <tr className="text-left text-muted-foreground">
           <th className="py-2 pl-3 pr-2 font-medium w-10">#</th>
           <th className="py-2 px-2 font-medium">Title</th>
           <th className="py-2 px-2 font-medium hidden sm:table-cell">Artist</th>
@@ -224,6 +229,7 @@ export function TrackTable({
           <th className="py-2 px-2 font-medium w-8"></th>
         </tr>
       </thead>
+
       <tbody className="mt-[1px]">
         {playlist.songs.map((track: Song, index: number) => (
           <TrackRow

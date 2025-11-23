@@ -1,39 +1,17 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  devIndicators: {
-    appIsrStatus: false,
-  },
-  experimental: {
-    ppr: true,
-    reactCompiler: true,
-    serverActions: {
-      bodySizeLimit: '5mb',
-    },
-  },
   images: {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'ijlyviwppydvzsmm.public.blob.vercel-storage.com',
-        port: '',
-        pathname: '/**',
-        search: '',
+        hostname: '*.public.blob.vercel-storage.com',
       },
-      {
-        protocol: 'https',
-        hostname: 'avatars.githubusercontent.com',
-        port: '',
-        pathname: '/**',
-        search: '',
-      },
-      {
-        protocol: 'https',
-        hostname: 'lh3.googleusercontent.com',
-        port: '',
-        pathname: '/**',
-        search: '',
-      },
+      // jika kamu punya domain gambar tambahan, bisa ditambah di sini
+      // {
+      //   protocol: "https",
+      //   hostname: "*.supabase.co",
+      // },
     ],
   },
 };
