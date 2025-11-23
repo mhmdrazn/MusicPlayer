@@ -1,6 +1,3 @@
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
-
 echo "➡️  Validating commit message (commitlint)"
 if pnpm -s commitlint --edit "$1"; then
 	echo "✅  commit-msg: commit message valid"

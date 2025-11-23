@@ -1,6 +1,3 @@
-#!/bin/sh
-. "$(dirname \"$0\")/_/husky.sh"
-
 echo "➡️  post-rewrite: history was rewritten"
 echo "ℹ️  post-rewrite: you may want to re-run linters or tests locally"
 echo "    Tip: run 'pnpm run format' and 'pnpm run test' to verify code health after rewriting history"

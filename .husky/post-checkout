@@ -1,6 +1,3 @@
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
-
 echo "➡️  post-checkout: ensuring dependencies are installed"
 if pnpm -s install; then
 	echo "✅  post-checkout: dependencies installed/verified"

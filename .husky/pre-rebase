@@ -1,6 +1,3 @@
-#!/bin/sh
-. "$(dirname \"$0\")/_/husky.sh"
-
 echo "➡️  pre-rebase: checking working tree cleanliness"
 # Ensure working tree is clean before rebase
 if [ -n "$(git status --porcelain)" ]; then

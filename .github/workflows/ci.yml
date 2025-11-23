@@ -2,16 +2,13 @@ name: CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, dev ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main, dev ]
 
 jobs:
-  build:
+  quality-check:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18.x]
 
     steps:
       - name: Checkout repository
@@ -20,7 +17,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '20'
           cache: 'pnpm'
 
       - name: Setup pnpm
@@ -31,44 +28,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Format check (Prettier)
+      - name: Prettier format check
         run: pnpm run format:check
 
-      - name: Lint (ESLint)
+      - name: Lint with ESLint
         run: pnpm run lint
 
-      - name: Run tests (Jest)
+      - name: Run unit tests with Jest
         run: pnpm run test
 
-      - name: Build
-        run: pnpm run build
-name: CI
-
-on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main, develop ]
-
-jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'pnpm'
-      - name: Install pnpm
-        run: npm i -g pnpm
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-      - name: Format check (Prettier)
-        run: pnpm run format:check
-      - name: Lint (ESLint)
-        run: pnpm run lint
-      - name: Run tests (Jest)
-        run: pnpm run test
-      - name: Build
+      - name: Build project
         run: pnpm run build
