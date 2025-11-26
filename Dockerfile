@@ -16,7 +16,15 @@ RUN pnpm install --frozen-lockfile
 # Copy source code
 COPY . .
 
-# Build the Next.js application
+# Build the Next.js application with dummy env vars for build-time requirements
+ENV POSTGRES_URL=postgresql://dummy:dummy@localhost:5432/dummy
+ENV NEXTAUTH_SECRET=docker-build-secret-not-used-in-production
+ENV NEXTAUTH_URL=http://localhost:3000
+ENV NEXT_PUBLIC_SUPABASE_URL=https://dummy.supabase.co
+ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=dummy-key
+ENV VERCEL_BLOB_TOKEN=dummy-token
+ENV OPENAI_API_KEY=dummy-key
+
 RUN pnpm build
 
 # Stage 2: Production Runtime
