@@ -1,0 +1,7 @@
+echo "➡️  post-checkout: ensuring dependencies are installed"
+if pnpm -s install; then
+	echo "✅  post-checkout: dependencies installed/verified"
+else
+	echo "❌  post-checkout: failed to install dependencies"
+	echo "    Tip: run 'pnpm install' manually and check the output."
+fi

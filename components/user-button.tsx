@@ -1,43 +1,34 @@
-// import { auth, signIn, signOut } from '@/lib/auth';
-import { Button } from "./ui/button";
-import Image from "next/image";
-import { LogIn, LogOut } from "lucide-react";
+'use client';
 
-// async function signInAction() {
-//   'use server';
-//   await signIn();
-// }
+import { useSession, signOut } from 'next-auth/react';
+import { Button } from './ui/button';
+import { LogOut } from 'lucide-react';
 
-// async function signOutAction() {
-//   'use server';
-//   await signOut();
-// }
+export function UserButton() {
+  const { data: session } = useSession();
 
-export async function UserButton() {
-  // const session = await auth();
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: '/' });
+  };
 
-  // if (!session?.user) {
-  //   return (
-  //     <form action={signInAction}>
-  //       <Button variant="ghost" className="w-full flex justify-start">
-  //         <LogIn className="mr-2" />
-  //         Sign In
-  //       </Button>
-  //     </form>
-  //   );
-  // }
+  if (!session?.user) {
+    return null;
+  }
 
   return (
-    <div className="flex items-center gap-4 p-2">
-      <div className="flex flex-col">
-        {/* <p className="font-bold">{session.user.name}</p> */}
-        {/* <p className="text-sm text-gray-400">{session.user.email}</p> */}
+    <div className="px-4 py-3 bg-[#121212]">
+      <div className="flex flex-col mb-3">
+        <p className="font-bold text-xs text-white">{session.user.name}</p>
+        <p className="text-xs text-gray-500">{session.user.email}</p>
       </div>
-      {/* <form action={signOutAction}> */}
-      <Button variant="ghost">
-        <LogOut />
+      <Button
+        onClick={handleLogout}
+        variant="ghost"
+        className="w-full justify-start text-xs text-gray-400 hover:text-white hover:bg-[#1A1A1A] h-8 px-2"
+      >
+        <LogOut className="mr-2 h-3 w-3" />
+        Logout
       </Button>
-      {/* </form> */}
     </div>
   );
 }

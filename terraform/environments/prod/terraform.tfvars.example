@@ -1,0 +1,9 @@
+# Production Environment Variables (Secrets)
+# Copy this file to terraform.tfvars and fill in your actual values
+# DO NOT COMMIT terraform.tfvars with actual values!
+# Store sensitive values in AWS Secrets Manager or GitHub Secrets instead
+
+aws_region = "us-east-1"
+rds_username = "admin"
+rds_password = "your-super-secure-password-here"
+acm_certificate_arn = "arn:aws:acm:us-east-1:123456789012:certificate/xxxxx"

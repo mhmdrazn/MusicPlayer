@@ -1,40 +1,43 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   devIndicators: {
     appIsrStatus: false,
   },
   experimental: {
-    ppr: true,
+    ppr: false,
     reactCompiler: true,
     serverActions: {
-      bodySizeLimit: "5mb",
+      bodySizeLimit: '5mb',
     },
   },
-
-  output: "standalone",
+  eslint: {
+    // ESLint is run separately in CI, disable during build
+    ignoreDuringBuilds: true,
+  },
+  output: 'standalone',
   images: {
     remotePatterns: [
       {
-        protocol: "https",
-        hostname: "**.public.blob.vercel-storage.com",
-        port: "",
-        pathname: "/**",
-        search: "",
+        protocol: 'https',
+        hostname: '*.public.blob.vercel-storage.com',
+        port: '',
+        pathname: '/**',
+        search: '',
       },
       {
-        protocol: "https",
-        hostname: "avatars.githubusercontent.com",
-        port: "",
-        pathname: "/**",
-        search: "",
+        protocol: 'https',
+        hostname: 'avatars.githubusercontent.com',
+        port: '',
+        pathname: '/**',
+        search: '',
       },
       {
-        protocol: "https",
-        hostname: "lh3.googleusercontent.com",
-        port: "",
-        pathname: "/**",
-        search: "",
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+        port: '',
+        pathname: '/**',
+        search: '',
       },
     ],
   },

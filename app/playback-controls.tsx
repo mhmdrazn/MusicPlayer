@@ -1,27 +1,19 @@
-"use client";
+'use client';
 
-import { useEffect, useState, useRef } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  Heart,
-  Pause,
-  Play,
-  SkipBack,
-  SkipForward,
-  Volume2,
-  VolumeX,
-} from "lucide-react";
-import { usePlayback } from "@/app/playback-context";
+import { useEffect, useState, useRef } from 'react';
+import { Button } from '@/components/ui/button';
+import { Heart, Pause, Play, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-react';
+import { usePlayback } from '@/app/playback-context';
 
 export function TrackInfo() {
-  const { currentTrack } = usePlayback();
+  let { currentTrack } = usePlayback();
 
   return (
     <div className="flex items-center space-x-3 w-1/3">
       {currentTrack && (
         <>
           <img
-            src={currentTrack.imageUrl || "/placeholder.svg"}
+            src={currentTrack.imageUrl || '/placeholder.svg'}
             alt="Now playing"
             className="w-10 h-10 object-cover"
           />
@@ -33,11 +25,7 @@ export function TrackInfo() {
               {currentTrack.artist}
             </div>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 flex-shrink-0 hidden sm:flex"
-          >
+          <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0 hidden sm:flex">
             <Heart className="w-4 h-4" />
           </Button>
         </>
@@ -47,13 +35,8 @@ export function TrackInfo() {
 }
 
 export function PlaybackButtons() {
-  const {
-    isPlaying,
-    togglePlayPause,
-    playPreviousTrack,
-    playNextTrack,
-    currentTrack,
-  } = usePlayback();
+  let { isPlaying, togglePlayPause, playPreviousTrack, playNextTrack, currentTrack } =
+    usePlayback();
 
   return (
     <div className="flex items-center space-x-2">
@@ -93,21 +76,21 @@ export function PlaybackButtons() {
 }
 
 export function ProgressBar() {
-  const { currentTime, duration, audioRef, setCurrentTime } = usePlayback();
-  const progressBarRef = useRef<HTMLDivElement>(null);
+  let { currentTime, duration, audioRef, setCurrentTime } = usePlayback();
+  let progressBarRef = useRef<HTMLDivElement>(null);
 
-  const formatTime = (time: number) => {
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+  let formatTime = (time: number) => {
+    let minutes = Math.floor(time / 60);
+    let seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  const handleProgressChange = (e: React.MouseEvent<HTMLDivElement>) => {
+  let handleProgressChange = (e: React.MouseEvent<HTMLDivElement>) => {
     if (progressBarRef.current && audioRef.current) {
-      const rect = progressBarRef.current.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
-      const newTime = (percentage / 100) * duration;
+      let rect = progressBarRef.current.getBoundingClientRect();
+      let x = e.clientX - rect.left;
+      let percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
+      let newTime = (percentage / 100) * duration;
       audioRef.current.currentTime = newTime;
       setCurrentTime(newTime);
     }
@@ -115,9 +98,7 @@ export function ProgressBar() {
 
   return (
     <div className="flex items-center w-full mt-1">
-      <span className="text-xs tabular-nums text-gray-400">
-        {formatTime(currentTime)}
-      </span>
+      <span className="text-xs tabular-nums text-gray-400">{formatTime(currentTime)}</span>
       <div
         ref={progressBarRef}
         className="flex-grow mx-2 h-1 bg-[#3E3E3E] rounded-full cursor-pointer relative"
@@ -130,19 +111,17 @@ export function ProgressBar() {
           }}
         ></div>
       </div>
-      <span className="text-xs tabular-nums text-gray-400">
-        {formatTime(duration)}
-      </span>
+      <span className="text-xs tabular-nums text-gray-400">{formatTime(duration)}</span>
     </div>
   );
 }
 
 export function Volume() {
-  const { audioRef, currentTrack } = usePlayback();
-  const [volume, setVolume] = useState(100);
-  const [isMuted, setIsMuted] = useState(false);
-  const [isVolumeVisible, setIsVolumeVisible] = useState(false);
-  const volumeBarRef = useRef<HTMLDivElement>(null);
+  let { audioRef, currentTrack } = usePlayback();
+  let [volume, setVolume] = useState(100);
+  let [isMuted, setIsMuted] = useState(false);
+  let [isVolumeVisible, setIsVolumeVisible] = useState(false);
+  let volumeBarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (audioRef.current) {
@@ -150,11 +129,11 @@ export function Volume() {
     }
   }, [volume, isMuted, audioRef]);
 
-  const handleVolumeChange = (e: React.MouseEvent<HTMLDivElement>) => {
+  let handleVolumeChange = (e: React.MouseEvent<HTMLDivElement>) => {
     if (volumeBarRef.current) {
-      const rect = volumeBarRef.current.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
+      let rect = volumeBarRef.current.getBoundingClientRect();
+      let x = e.clientX - rect.left;
+      let percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
       setVolume(percentage);
       if (audioRef.current) {
         audioRef.current.volume = percentage / 100;
@@ -163,7 +142,7 @@ export function Volume() {
     }
   };
 
-  const toggleMute = () => {
+  let toggleMute = () => {
     if (audioRef.current) {
       if (isMuted) {
         audioRef.current.volume = volume / 100;
@@ -175,7 +154,7 @@ export function Volume() {
     }
   };
 
-  const toggleVolumeVisibility = () => {
+  let toggleVolumeVisibility = () => {
     setIsVolumeVisible(!isVolumeVisible);
   };
 
@@ -216,7 +195,7 @@ export function Volume() {
 }
 
 export function PlaybackControls() {
-  const {
+  let {
     currentTrack,
     audioRef,
     setCurrentTime,
@@ -227,49 +206,44 @@ export function PlaybackControls() {
   } = usePlayback();
 
   useEffect(() => {
-    const audio = audioRef.current;
+    let audio = audioRef.current;
     if (audio) {
-      const updateTime = () => setCurrentTime(audio.currentTime);
-      const updateDuration = () => setDuration(audio.duration);
+      let updateTime = () => setCurrentTime(audio.currentTime);
+      let updateDuration = () => setDuration(audio.duration);
 
-      audio.addEventListener("timeupdate", updateTime);
-      audio.addEventListener("loadedmetadata", updateDuration);
+      audio.addEventListener('timeupdate', updateTime);
+      audio.addEventListener('loadedmetadata', updateDuration);
 
       return () => {
-        audio.removeEventListener("timeupdate", updateTime);
-        audio.removeEventListener("loadedmetadata", updateDuration);
+        audio.removeEventListener('timeupdate', updateTime);
+        audio.removeEventListener('loadedmetadata', updateDuration);
       };
     }
   }, [audioRef, setCurrentTime, setDuration]);
 
   useEffect(() => {
-    if ("mediaSession" in navigator && currentTrack) {
+    if ('mediaSession' in navigator && currentTrack) {
       navigator.mediaSession.metadata = new MediaMetadata({
         title: currentTrack.name,
         artist: currentTrack.artist,
         album: currentTrack.album || undefined,
-        artwork: [
-          { src: currentTrack.imageUrl!, sizes: "512x512", type: "image/jpeg" },
-        ],
+        artwork: [{ src: currentTrack.imageUrl!, sizes: '512x512', type: 'image/jpeg' }],
       });
 
-      navigator.mediaSession.setActionHandler("play", () => {
+      navigator.mediaSession.setActionHandler('play', () => {
         audioRef.current?.play();
         togglePlayPause();
       });
 
-      navigator.mediaSession.setActionHandler("pause", () => {
+      navigator.mediaSession.setActionHandler('pause', () => {
         audioRef.current?.pause();
         togglePlayPause();
       });
 
-      navigator.mediaSession.setActionHandler(
-        "previoustrack",
-        playPreviousTrack
-      );
-      navigator.mediaSession.setActionHandler("nexttrack", playNextTrack);
+      navigator.mediaSession.setActionHandler('previoustrack', playPreviousTrack);
+      navigator.mediaSession.setActionHandler('nexttrack', playNextTrack);
 
-      navigator.mediaSession.setActionHandler("seekto", details => {
+      navigator.mediaSession.setActionHandler('seekto', (details) => {
         if (audioRef.current && details.seekTime !== undefined) {
           audioRef.current.currentTime = details.seekTime;
           setCurrentTime(details.seekTime);
@@ -285,7 +259,7 @@ export function PlaybackControls() {
               position: audioRef.current.currentTime,
             });
           } catch (error) {
-            console.error("Error updating position state:", error);
+            console.error('Error updating position state:', error);
           }
         }
       };
@@ -294,36 +268,20 @@ export function PlaybackControls() {
         updatePositionState();
       };
 
-      audioRef.current?.addEventListener("timeupdate", updatePositionState);
-      audioRef.current?.addEventListener(
-        "loadedmetadata",
-        handleLoadedMetadata
-      );
+      audioRef.current?.addEventListener('timeupdate', updatePositionState);
+      audioRef.current?.addEventListener('loadedmetadata', handleLoadedMetadata);
 
       return () => {
-        audioRef.current?.removeEventListener(
-          "timeupdate",
-          updatePositionState
-        );
-        audioRef.current?.removeEventListener(
-          "loadedmetadata",
-          handleLoadedMetadata
-        );
-        navigator.mediaSession.setActionHandler("play", null);
-        navigator.mediaSession.setActionHandler("pause", null);
-        navigator.mediaSession.setActionHandler("previoustrack", null);
-        navigator.mediaSession.setActionHandler("nexttrack", null);
-        navigator.mediaSession.setActionHandler("seekto", null);
+        audioRef.current?.removeEventListener('timeupdate', updatePositionState);
+        audioRef.current?.removeEventListener('loadedmetadata', handleLoadedMetadata);
+        navigator.mediaSession.setActionHandler('play', null);
+        navigator.mediaSession.setActionHandler('pause', null);
+        navigator.mediaSession.setActionHandler('previoustrack', null);
+        navigator.mediaSession.setActionHandler('nexttrack', null);
+        navigator.mediaSession.setActionHandler('seekto', null);
       };
     }
-  }, [
-    currentTrack,
-    playPreviousTrack,
-    playNextTrack,
-    togglePlayPause,
-    audioRef,
-    setCurrentTime,
-  ]);
+  }, [currentTrack, playPreviousTrack, playNextTrack, togglePlayPause, audioRef, setCurrentTime]);
 
   return (
     <div className="fixed bottom-0 left-0 right-0 flex items-center justify-between p-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] bg-[#181818] border-t border-[#282828]">
