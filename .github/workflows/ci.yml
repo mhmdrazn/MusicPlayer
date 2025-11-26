@@ -1,0 +1,105 @@
+name: "CI Pipeline"
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+      - feature/**
+  pull_request:
+    branches:
+      - main
+      - dev
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ----------------------------
+  # 1) LINT JOB
+  # ----------------------------
+  lint:
+    name: "🔍 Lint Check"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ⬇ Checkout Repository
+        uses: actions/checkout@v4
+
+      # 1️⃣ Install pnpm dulu
+      - name: 🟪 Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      # 2️⃣ Baru Setup Node.js (cache: pnpm)
+      - name: 🟦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: 📦 Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🧹 Run Lint
+        run: pnpm run lint
+
+  # ----------------------------
+  # 2) TEST JOB
+  # ----------------------------
+  test:
+    name: "🧪 Unit Tests"
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+      - name: ⬇ Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🟪 Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: 🟦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: 📦 Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🧪 Run Tests
+        run: pnpm run test --if-present
+
+  # ----------------------------
+  # 3) BUILD JOB
+  # ----------------------------
+  build:
+    name: "🚀 Build App"
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: ⬇ Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🟪 Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: 🟦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: 📦 Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🏗 Build Next.js App
+        run: pnpm run build
