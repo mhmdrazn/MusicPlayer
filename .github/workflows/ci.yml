@@ -39,3 +39,12 @@ jobs:
 
       - name: Build project
         run: pnpm run build
+        env:
+          # Dummy values for build-time env vars (not used in production)
+          POSTGRES_URL: postgresql://dummy:dummy@localhost:5432/dummy
+          NEXTAUTH_SECRET: ci-dummy-secret-not-used-in-production-12345
+          NEXTAUTH_URL: http://localhost:3000
+          NEXT_PUBLIC_SUPABASE_URL: https://dummy.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: dummy-key
+          VERCEL_BLOB_TOKEN: dummy-token
+          OPENAI_API_KEY: dummy-key

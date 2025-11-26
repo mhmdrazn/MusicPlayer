@@ -5,13 +5,16 @@ const nextConfig: NextConfig = {
     appIsrStatus: false,
   },
   experimental: {
-    ppr: true,
+    ppr: false,
     reactCompiler: true,
     serverActions: {
       bodySizeLimit: '5mb',
     },
   },
-
+  eslint: {
+    // ESLint is run separately in CI, disable during build
+    ignoreDuringBuilds: true,
+  },
   output: 'standalone',
   images: {
     remotePatterns: [
