@@ -1,13 +1,11 @@
 import './globals.css';
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
-import { NowPlaying } from './now-playing';
-import { PlaybackProvider } from './playback-context';
 import { getAllPlaylists } from '@/lib/db/queries';
-import { OptimisticPlaylists } from './optimistic-playlists';
-import { PlaylistProvider } from './hooks/use-playlist';
-import { PlaybackControls } from './playback-controls';
-import { UserButton } from '@/components/user-button';
+import { ProtectedLayout } from '@/components/protected-layout';
+import { AuthProvider } from '@/components/auth-provider';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Next.js Music Player',
@@ -24,25 +22,15 @@ export const viewport: Viewport = {
 
 const inter = Inter({ subsets: ['latin'] });
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   const playlistsPromise = getAllPlaylists();
 
   return (
     <html lang="en" className={inter.className}>
       <body className="dark flex flex-col md:flex-row h-[100dvh] text-gray-200 bg-[#0A0A0A]">
-        <PlaybackProvider>
-          <PlaylistProvider playlistsPromise={playlistsPromise}>
-            <OptimisticPlaylists />
-            <UserButton />
-            {children}
-          </PlaylistProvider>
-          <NowPlaying />
-          <PlaybackControls />
-        </PlaybackProvider>
+        <AuthProvider>
+          <ProtectedLayout playlistsPromise={playlistsPromise}>{children}</ProtectedLayout>
+        </AuthProvider>
       </body>
     </html>
   );

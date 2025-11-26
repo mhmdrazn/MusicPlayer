@@ -39,13 +39,9 @@ async function seedSongs() {
     if (metadata.common.picture && metadata.common.picture.length > 0) {
       let picture = metadata.common.picture[0];
       let imageBuffer = Buffer.from(picture.data);
-      let { url } = await put(
-        `album_covers/${file}.${picture.format}`,
-        imageBuffer,
-        {
-          access: 'public',
-        }
-      );
+      let { url } = await put(`album_covers/${file}.${picture.format}`, imageBuffer, {
+        access: 'public',
+      });
       imageUrl = url;
     }
 
@@ -75,10 +71,7 @@ async function seedSongs() {
 
     if (existingSong.length > 0) {
       // Update existing song
-      await db
-        .update(songs)
-        .set(songData)
-        .where(eq(songs.id, existingSong[0].id));
+      await db.update(songs).set(songData).where(eq(songs.id, existingSong[0].id));
       console.log(`Updated song: ${songData.name}`);
     } else {
       // Insert new song
@@ -121,8 +114,7 @@ async function seedPlaylists() {
         .insert(playlists)
         .values({
           name,
-          coverUrl:
-            'https://images.unsplash.com/photo-1470225620780-dba8ba36b745',
+          coverUrl: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745',
         })
         .returning();
       playlist = newPlaylist;
@@ -147,11 +139,7 @@ async function seedPlaylists() {
     // return the inserted row by default when calling `.returning()`.
     if (!playlist || !('id' in playlist) || !playlist.id) {
       // try to re-fetch by name as a fallback
-      const found = await db
-        .select()
-        .from(playlists)
-        .where(eq(playlists.name, name))
-        .limit(1);
+      const found = await db.select().from(playlists).where(eq(playlists.name, name)).limit(1);
       if (found.length > 0) {
         playlist = found[0];
       }
@@ -163,9 +151,7 @@ async function seedPlaylists() {
     }
 
     // Remove existing playlist songs
-    await db
-      .delete(playlistSongs)
-      .where(eq(playlistSongs.playlistId, playlist.id));
+    await db.delete(playlistSongs).where(eq(playlistSongs.playlistId, playlist.id));
 
     // Add new playlist songs
     for (let i = 0; i < playlistSongCount; i++) {

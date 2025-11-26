@@ -2,10 +2,7 @@ import { NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
 
-export async function GET(
-  _: any,
-  { params }: { params: Promise<{ filename: string }> }
-) {
+export async function GET(_: any, { params }: { params: Promise<{ filename: string }> }) {
   let filename = (await params).filename;
   let audioDirectory = path.join(process.cwd(), 'tracks');
   let filePath = path.join(audioDirectory, filename);

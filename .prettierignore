@@ -1,0 +1,10 @@
+node_modules
+.next
+dist
+build
+coverage
+pnpm-lock.yaml
+.terraform
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup

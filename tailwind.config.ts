@@ -2,10 +2,7 @@ import type { Config } from 'tailwindcss';
 
 const config: Config = {
   darkMode: ['class'],
-  content: [
-    './components/**/*.{js,ts,jsx,tsx,mdx}',
-    './app/**/*.{js,ts,jsx,tsx,mdx}',
-  ],
+  content: ['./components/**/*.{js,ts,jsx,tsx,mdx}', './app/**/*.{js,ts,jsx,tsx,mdx}'],
   theme: {
     extend: {
       borderRadius: {
@@ -76,9 +73,6 @@ const config: Config = {
       },
     },
   },
-  plugins: [
-    require('tailwindcss-react-aria-components'),
-    require('tailwindcss-animate'),
-  ],
+  plugins: [require('tailwindcss-react-aria-components'), require('tailwindcss-animate')],
 };
 export default config;

@@ -4,13 +4,7 @@ import { uploadPlaylistCoverAction } from '@/app/actions';
 import { Upload, Loader2 } from 'lucide-react';
 import { useActionState } from 'react';
 
-export function CoverImage({
-  url,
-  playlistId,
-}: {
-  url: string | null;
-  playlistId: string;
-}) {
+export function CoverImage({ url, playlistId }: { url: string | null; playlistId: string }) {
   let [state, formAction, pending] = useActionState(uploadPlaylistCoverAction, {
     success: false,
     coverUrl: '',

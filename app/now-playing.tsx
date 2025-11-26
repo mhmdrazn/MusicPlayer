@@ -10,13 +10,10 @@ import { cn } from '@/lib/utils';
 
 export function NowPlaying() {
   const { currentTrack } = usePlayback();
-  const [imageState, imageFormAction, imagePending] = useActionState(
-    updateTrackImageAction,
-    {
-      success: false,
-      imageUrl: '',
-    }
-  );
+  const [imageState, imageFormAction, imagePending] = useActionState(updateTrackImageAction, {
+    success: false,
+    imageUrl: '',
+  });
   const [showPencil, setShowPencil] = useState(false);
 
   useEffect(() => {
@@ -38,9 +35,7 @@ export function NowPlaying() {
     return null;
   }
 
-  const currentImageUrl = imageState?.success
-    ? imageState.imageUrl
-    : currentTrack.imageUrl;
+  const currentImageUrl = imageState?.success ? imageState.imageUrl : currentTrack.imageUrl;
 
   return (
     <div className="hidden md:flex flex-col w-56 p-4 bg-[#121212] overflow-auto">
@@ -141,12 +136,7 @@ interface EditableInputProps {
   label: string;
 }
 
-export function EditableInput({
-  initialValue,
-  trackId,
-  field,
-  label,
-}: EditableInputProps) {
+export function EditableInput({ initialValue, trackId, field, label }: EditableInputProps) {
   let [isEditing, setIsEditing] = useState(false);
   let [value, setValue] = useState(initialValue);
   let [showCheck, setShowCheck] = useState(false);
@@ -201,10 +191,7 @@ export function EditableInput({
 
   return (
     <div className="space-y-1 group">
-      <label
-        htmlFor={`${field}-input`}
-        className="text-xs text-muted-foreground"
-      >
+      <label htmlFor={`${field}-input`} className="text-xs text-muted-foreground">
         {label}
       </label>
       <div className="flex items-center justify-between w-full text-xs h-3 border-b border-transparent focus-within:border-white transition-colors">
@@ -242,9 +229,7 @@ export function EditableInput({
             }}
             aria-label={`Edit ${label}`}
           >
-            <span className={cn(value ? '' : 'text-muted-foreground')}>
-              {value || '-'}
-            </span>
+            <span className={cn(value ? '' : 'text-muted-foreground')}>{value || '-'}</span>
           </div>
         )}
         <div className="flex items-center">

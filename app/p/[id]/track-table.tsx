@@ -32,14 +32,8 @@ function TrackRow({
   isSelected: boolean;
   onSelect: () => void;
 }) {
-  let {
-    currentTrack,
-    playTrack,
-    togglePlayPause,
-    isPlaying,
-    setActivePanel,
-    handleKeyNavigation,
-  } = usePlayback();
+  let { currentTrack, playTrack, togglePlayPause, isPlaying, setActivePanel, handleKeyNavigation } =
+    usePlayback();
   let { playlists } = usePlaylist();
 
   let [isFocused, setIsFocused] = useState(false);
@@ -189,13 +183,7 @@ function TrackRow({
   );
 }
 
-export function TrackTable({
-  playlist,
-  query,
-}: {
-  playlist: PlaylistWithSongs;
-  query?: string;
-}) {
+export function TrackTable({ playlist, query }: { playlist: PlaylistWithSongs; query?: string }) {
   let tableRef = useRef<HTMLTableElement>(null);
   let { registerPanelRef, setActivePanel, setPlaylist } = usePlayback();
   const [selectedTrackId, setSelectedTrackId] = useState<string | null>(null);
@@ -209,11 +197,7 @@ export function TrackTable({
   }, [playlist.songs, setPlaylist]);
 
   return (
-    <table
-      ref={tableRef}
-      className="w-full text-xs"
-      onClick={() => setActivePanel('tracklist')}
-    >
+    <table ref={tableRef} className="w-full text-xs" onClick={() => setActivePanel('tracklist')}>
       <thead className="sticky top-0 bg-[#0A0A0A] z-10 border-b border-[#282828]">
         <tr className="text-left text-gray-400">
           <th className="py-2 pl-3 pr-2 font-medium w-10">#</th>

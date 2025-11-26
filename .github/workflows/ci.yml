@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
+jobs:
+  quality-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Prettier format check
+        run: pnpm run format:check
+
+      - name: Lint with ESLint
+        run: pnpm run lint
+
+      - name: Run unit tests with Jest
+        run: pnpm run test
+
+      - name: Build project
+        run: pnpm run build
+        env:
+          # Dummy values for build-time env vars (not used in production)
+          POSTGRES_URL: postgresql://dummy:dummy@localhost:5432/dummy
+          NEXTAUTH_SECRET: ci-dummy-secret-not-used-in-production-12345
+          NEXTAUTH_URL: http://localhost:3000
+          NEXT_PUBLIC_SUPABASE_URL: https://dummy.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: dummy-key
+          VERCEL_BLOB_TOKEN: dummy-token
+          OPENAI_API_KEY: dummy-key

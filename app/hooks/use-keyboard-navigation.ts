@@ -24,9 +24,7 @@ export function useKeyboardNavigation({
     let handleKeyDown = (e: KeyboardEvent) => {
       if (!containerRef.current) return;
 
-      let items = Array.from(
-        containerRef.current.querySelectorAll(itemSelector)
-      );
+      let items = Array.from(containerRef.current.querySelectorAll(itemSelector));
       let currentFocusedItem = document.activeElement as HTMLElement;
       let currentIndex = items.indexOf(currentFocusedItem);
 
@@ -69,14 +67,7 @@ export function useKeyboardNavigation({
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [
-    containerRef,
-    itemSelector,
-    onNavigate,
-    onSelect,
-    onExit,
-    setActivePanel,
-  ]);
+  }, [containerRef, itemSelector, onNavigate, onSelect, onExit, setActivePanel]);
 
   return activePanel;
 }

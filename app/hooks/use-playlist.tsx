@@ -1,12 +1,6 @@
 'use client';
 
-import React, {
-  createContext,
-  useContext,
-  useMemo,
-  useOptimistic,
-  use,
-} from 'react';
+import React, { createContext, useContext, useMemo, useOptimistic, use } from 'react';
 import { Playlist } from '@/lib/db/types';
 
 type PlaylistContextType = {
@@ -15,9 +9,7 @@ type PlaylistContextType = {
   deletePlaylist: (id: string) => void;
 };
 
-const PlaylistContext = createContext<PlaylistContextType | undefined>(
-  undefined
-);
+const PlaylistContext = createContext<PlaylistContextType | undefined>(undefined);
 
 type OptimisticAction =
   | { type: 'update'; id: string; updates: Partial<Playlist> }
@@ -38,9 +30,7 @@ export function PlaylistProvider({
       switch (action.type) {
         case 'update':
           return state.map((playlist) =>
-            playlist.id === action.id
-              ? { ...playlist, ...action.updates }
-              : playlist
+            playlist.id === action.id ? { ...playlist, ...action.updates } : playlist
           );
         case 'delete':
           return state.filter((playlist) => playlist.id !== action.id);
@@ -67,11 +57,7 @@ export function PlaylistProvider({
     [playlists]
   );
 
-  return (
-    <PlaylistContext.Provider value={value}>
-      {children}
-    </PlaylistContext.Provider>
-  );
+  return <PlaylistContext.Provider value={value}>{children}</PlaylistContext.Provider>;
 }
 
 export function usePlaylist() {
