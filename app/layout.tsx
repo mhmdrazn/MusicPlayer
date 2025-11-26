@@ -5,6 +5,8 @@ import { getAllPlaylists } from '@/lib/db/queries';
 import { ProtectedLayout } from '@/components/protected-layout';
 import { AuthProvider } from '@/components/auth-provider';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'Next.js Music Player',
   description: 'A music player built with Next.js.',
