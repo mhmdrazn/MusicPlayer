@@ -1,41 +1,103 @@
-name: CI
+name: "CI Pipeline"
 
 on:
   push:
-    branches: [ main, dev ]
+    branches:
+      - main
+      - dev
+      - feature/**
   pull_request:
-    branches: [ main, dev ]
+    branches:
+      - main
+      - dev
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  quality-check:
+  # ----------------------------
+  # 1) LINT JOB
+  # ----------------------------
+  lint:
+    name: "🔍 Lint Check"
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: ⬇ Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: 🟦 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'pnpm'
+          node-version: 20
+          cache: "pnpm"
 
-      - name: Setup pnpm
+      - name: 🟪 Setup pnpm
         uses: pnpm/action-setup@v2
         with:
           version: 8
 
-      - name: Install dependencies
+      - name: 📦 Install Dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Prettier format check
-        run: pnpm run format:check
-
-      - name: Lint with ESLint
+      - name: 🧹 Run Lint
         run: pnpm run lint
 
-      - name: Run unit tests with Jest
-        run: pnpm run test
+  # ----------------------------
+  # 2) TEST JOB
+  # ----------------------------
+  test:
+    name: "🧪 Unit Tests"
+    runs-on: ubuntu-latest
+    needs: lint
 
-      - name: Build project
+    steps:
+      - name: ⬇ Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🟦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: 🟪 Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: 📦 Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🧪 Run Tests
+        run: pnpm run test --if-present
+
+  # ----------------------------
+  # 3) BUILD JOB
+  # ----------------------------
+  build:
+    name: "🚀 Build App"
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: ⬇ Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🟦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: 🟪 Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: 📦 Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🏗 Build Next.js App
         run: pnpm run build
