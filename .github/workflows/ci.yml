@@ -27,16 +27,18 @@ jobs:
       - name: ⬇ Checkout Repository
         uses: actions/checkout@v4
 
+      # 1️⃣ Install pnpm dulu
+      - name: 🟪 Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      # 2️⃣ Baru Setup Node.js (cache: pnpm)
       - name: 🟦 Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: "pnpm"
-
-      - name: 🟪 Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
 
       - name: 📦 Install Dependencies
         run: pnpm install --frozen-lockfile
@@ -56,16 +58,16 @@ jobs:
       - name: ⬇ Checkout Repository
         uses: actions/checkout@v4
 
+      - name: 🟪 Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
       - name: 🟦 Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: "pnpm"
-
-      - name: 🟪 Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
 
       - name: 📦 Install Dependencies
         run: pnpm install --frozen-lockfile
@@ -85,16 +87,16 @@ jobs:
       - name: ⬇ Checkout Repository
         uses: actions/checkout@v4
 
+      - name: 🟪 Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
       - name: 🟦 Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: "pnpm"
-
-      - name: 🟪 Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
 
       - name: 📦 Install Dependencies
         run: pnpm install --frozen-lockfile
