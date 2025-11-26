@@ -31,7 +31,7 @@ function PlaylistRow({ playlist }: { playlist: Playlist }) {
 
   async function handleDeletePlaylist(id: string) {
     if (isDeleting) return; // Prevent double clicks
-    
+
     setIsDeleting(true);
 
     startTransition(async () => {
@@ -67,7 +67,9 @@ function PlaylistRow({ playlist }: { playlist: Playlist }) {
   }
 
   return (
-    <li className={`group relative ${isPending || isDeleting ? 'opacity-50 pointer-events-none' : ''}`}>
+    <li
+      className={`group relative ${isPending || isDeleting ? 'opacity-50 pointer-events-none' : ''}`}
+    >
       <Link
         prefetch={true}
         href={`/p/${playlist.id}`}
@@ -121,9 +123,9 @@ export function OptimisticPlaylists() {
 
   async function addPlaylistAction() {
     if (isAdding) return; // Prevent double clicks
-    
+
     setIsAdding(true);
-    
+
     try {
       let newPlaylistId = uuidv4();
       let newPlaylist = {
@@ -136,14 +138,14 @@ export function OptimisticPlaylists() {
 
       // Optimistic update
       updatePlaylist(newPlaylistId, newPlaylist);
-      
+
       // Navigate
       router.prefetch(`/p/${newPlaylistId}`);
       router.push(`/p/${newPlaylistId}`);
-      
+
       // Server action
       await createPlaylistAction(newPlaylistId, 'New Playlist');
-      
+
       // Refresh
       router.refresh();
     } catch (error) {
@@ -193,7 +195,7 @@ export function OptimisticPlaylists() {
           </form>
         </div>
       </div>
-      
+
       {/* Scrollable Playlist Area */}
       <ScrollArea className="flex-1 min-h-0 px-0">
         <ul
@@ -201,12 +203,12 @@ export function OptimisticPlaylists() {
           className="space-y-0.5 text-xs"
           onKeyDown={(e) => handleKeyNavigation(e, 'sidebar')}
         >
-          {playlists.map((playlist) => (   
+          {playlists.map((playlist) => (
             <PlaylistRow key={playlist.id} playlist={playlist} />
           ))}
         </ul>
       </ScrollArea>
-      
+
       <div className="pb-16 mb-2 flex-shrink-0 border-t border-gray-800">
         <UserButton />
       </div>

@@ -2,15 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import {
-  Heart,
-  Pause,
-  Play,
-  SkipBack,
-  SkipForward,
-  Volume2,
-  VolumeX,
-} from 'lucide-react';
+import { Heart, Pause, Play, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-react';
 import { usePlayback } from '@/app/playback-context';
 
 export function TrackInfo() {
@@ -33,11 +25,7 @@ export function TrackInfo() {
               {currentTrack.artist}
             </div>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 flex-shrink-0 hidden sm:flex"
-          >
+          <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0 hidden sm:flex">
             <Heart className="w-4 h-4" />
           </Button>
         </>
@@ -47,13 +35,8 @@ export function TrackInfo() {
 }
 
 export function PlaybackButtons() {
-  let {
-    isPlaying,
-    togglePlayPause,
-    playPreviousTrack,
-    playNextTrack,
-    currentTrack,
-  } = usePlayback();
+  let { isPlaying, togglePlayPause, playPreviousTrack, playNextTrack, currentTrack } =
+    usePlayback();
 
   return (
     <div className="flex items-center space-x-2">
@@ -115,9 +98,7 @@ export function ProgressBar() {
 
   return (
     <div className="flex items-center w-full mt-1">
-      <span className="text-xs tabular-nums text-gray-400">
-        {formatTime(currentTime)}
-      </span>
+      <span className="text-xs tabular-nums text-gray-400">{formatTime(currentTime)}</span>
       <div
         ref={progressBarRef}
         className="flex-grow mx-2 h-1 bg-[#3E3E3E] rounded-full cursor-pointer relative"
@@ -130,9 +111,7 @@ export function ProgressBar() {
           }}
         ></div>
       </div>
-      <span className="text-xs tabular-nums text-gray-400">
-        {formatTime(duration)}
-      </span>
+      <span className="text-xs tabular-nums text-gray-400">{formatTime(duration)}</span>
     </div>
   );
 }
@@ -248,9 +227,7 @@ export function PlaybackControls() {
         title: currentTrack.name,
         artist: currentTrack.artist,
         album: currentTrack.album || undefined,
-        artwork: [
-          { src: currentTrack.imageUrl!, sizes: '512x512', type: 'image/jpeg' },
-        ],
+        artwork: [{ src: currentTrack.imageUrl!, sizes: '512x512', type: 'image/jpeg' }],
       });
 
       navigator.mediaSession.setActionHandler('play', () => {
@@ -263,10 +240,7 @@ export function PlaybackControls() {
         togglePlayPause();
       });
 
-      navigator.mediaSession.setActionHandler(
-        'previoustrack',
-        playPreviousTrack
-      );
+      navigator.mediaSession.setActionHandler('previoustrack', playPreviousTrack);
       navigator.mediaSession.setActionHandler('nexttrack', playNextTrack);
 
       navigator.mediaSession.setActionHandler('seekto', (details) => {
@@ -295,20 +269,11 @@ export function PlaybackControls() {
       };
 
       audioRef.current?.addEventListener('timeupdate', updatePositionState);
-      audioRef.current?.addEventListener(
-        'loadedmetadata',
-        handleLoadedMetadata
-      );
+      audioRef.current?.addEventListener('loadedmetadata', handleLoadedMetadata);
 
       return () => {
-        audioRef.current?.removeEventListener(
-          'timeupdate',
-          updatePositionState
-        );
-        audioRef.current?.removeEventListener(
-          'loadedmetadata',
-          handleLoadedMetadata
-        );
+        audioRef.current?.removeEventListener('timeupdate', updatePositionState);
+        audioRef.current?.removeEventListener('loadedmetadata', handleLoadedMetadata);
         navigator.mediaSession.setActionHandler('play', null);
         navigator.mediaSession.setActionHandler('pause', null);
         navigator.mediaSession.setActionHandler('previoustrack', null);
@@ -316,14 +281,7 @@ export function PlaybackControls() {
         navigator.mediaSession.setActionHandler('seekto', null);
       };
     }
-  }, [
-    currentTrack,
-    playPreviousTrack,
-    playNextTrack,
-    togglePlayPause,
-    audioRef,
-    setCurrentTime,
-  ]);
+  }, [currentTrack, playPreviousTrack, playNextTrack, togglePlayPause, audioRef, setCurrentTime]);
 
   return (
     <div className="fixed bottom-0 left-0 right-0 flex items-center justify-between p-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] bg-[#181818] border-t border-[#282828]">

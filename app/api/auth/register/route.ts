@@ -22,21 +22,21 @@ export async function POST(request: NextRequest) {
     });
 
     if (existingUser) {
-      return NextResponse.json(
-        { error: 'User with this email already exists' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'User with this email already exists' }, { status: 400 });
     }
 
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Buat user baru
-    const newUser = await db.insert(users).values({
-      email,
-      name,
-      password: hashedPassword,
-    }).returning();
+    const newUser = await db
+      .insert(users)
+      .values({
+        email,
+        name,
+        password: hashedPassword,
+      })
+      .returning();
 
     return NextResponse.json(
       {
@@ -51,9 +51,6 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     console.error('Register error:', error);
-    return NextResponse.json(
-      { error: 'Failed to register user' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to register user' }, { status: 500 });
   }
 }

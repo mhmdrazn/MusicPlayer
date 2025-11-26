@@ -20,20 +20,14 @@ export const viewport: Viewport = {
 
 const inter = Inter({ subsets: ['latin'] });
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   const playlistsPromise = getAllPlaylists();
 
   return (
     <html lang="en" className={inter.className}>
       <body className="dark flex flex-col md:flex-row h-[100dvh] text-gray-200 bg-[#0A0A0A]">
         <AuthProvider>
-          <ProtectedLayout playlistsPromise={playlistsPromise}>
-            {children}
-          </ProtectedLayout>
+          <ProtectedLayout playlistsPromise={playlistsPromise}>{children}</ProtectedLayout>
         </AuthProvider>
       </body>
     </html>

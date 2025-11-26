@@ -2,7 +2,7 @@ name: CD - Build, Push to ECR, and Deploy to ECS
 
 on:
   push:
-    branches: [ main, dev ]
+    branches: [main, dev]
 
 permissions:
   id-token: write
@@ -11,7 +11,7 @@ permissions:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

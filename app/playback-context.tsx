@@ -32,9 +32,7 @@ type PlaybackContextType = {
   handleKeyNavigation: (e: React.KeyboardEvent, panel: Panel) => void;
 };
 
-const PlaybackContext = createContext<PlaybackContextType | undefined>(
-  undefined
-);
+const PlaybackContext = createContext<PlaybackContextType | undefined>(undefined);
 
 function useKeyboardNavigation() {
   const [activePanel, setActivePanel] = useState<Panel>('sidebar');
@@ -43,62 +41,52 @@ function useKeyboardNavigation() {
     tracklist: null,
   });
 
-  const registerPanelRef = useCallback(
-    (panel: Panel, ref: React.RefObject<HTMLElement>) => {
-      panelRefs.current[panel] = ref;
-    },
-    []
-  );
+  const registerPanelRef = useCallback((panel: Panel, ref: React.RefObject<HTMLElement>) => {
+    panelRefs.current[panel] = ref;
+  }, []);
 
-  const handleKeyNavigation = useCallback(
-    (e: React.KeyboardEvent, panel: Panel) => {
-      const currentRef = panelRefs.current[panel];
-      if (!currentRef?.current) return;
+  const handleKeyNavigation = useCallback((e: React.KeyboardEvent, panel: Panel) => {
+    const currentRef = panelRefs.current[panel];
+    if (!currentRef?.current) return;
 
-      const items = Array.from(
-        currentRef.current.querySelectorAll('[tabindex="0"]')
-      );
-      const currentIndex = items.indexOf(document.activeElement as HTMLElement);
+    const items = Array.from(currentRef.current.querySelectorAll('[tabindex="0"]'));
+    const currentIndex = items.indexOf(document.activeElement as HTMLElement);
 
-      switch (e.key) {
-        case 'ArrowDown':
-        case 'j':
+    switch (e.key) {
+      case 'ArrowDown':
+      case 'j':
+        e.preventDefault();
+        const nextIndex = (currentIndex + 1) % items.length;
+        (items[nextIndex] as HTMLElement).focus();
+        break;
+      case 'ArrowUp':
+      case 'k':
+        e.preventDefault();
+        const prevIndex = (currentIndex - 1 + items.length) % items.length;
+        (items[prevIndex] as HTMLElement).focus();
+        break;
+      case 'h':
+        if (panel === 'tracklist') {
           e.preventDefault();
-          const nextIndex = (currentIndex + 1) % items.length;
-          (items[nextIndex] as HTMLElement).focus();
-          break;
-        case 'ArrowUp':
-        case 'k':
+          setActivePanel('sidebar');
+          const sidebarFirstItem = panelRefs.current.sidebar?.current?.querySelector(
+            '[tabindex="0"]'
+          ) as HTMLElement | null;
+          sidebarFirstItem?.focus();
+        }
+        break;
+      case 'l':
+        if (panel === 'sidebar') {
           e.preventDefault();
-          const prevIndex = (currentIndex - 1 + items.length) % items.length;
-          (items[prevIndex] as HTMLElement).focus();
-          break;
-        case 'h':
-          if (panel === 'tracklist') {
-            e.preventDefault();
-            setActivePanel('sidebar');
-            const sidebarFirstItem =
-              panelRefs.current.sidebar?.current?.querySelector(
-                '[tabindex="0"]'
-              ) as HTMLElement | null;
-            sidebarFirstItem?.focus();
-          }
-          break;
-        case 'l':
-          if (panel === 'sidebar') {
-            e.preventDefault();
-            setActivePanel('tracklist');
-            const tracklistFirstItem =
-              panelRefs.current.tracklist?.current?.querySelector(
-                '[tabindex="0"]'
-              ) as HTMLElement | null;
-            tracklistFirstItem?.focus();
-          }
-          break;
-      }
-    },
-    []
-  );
+          setActivePanel('tracklist');
+          const tracklistFirstItem = panelRefs.current.tracklist?.current?.querySelector(
+            '[tabindex="0"]'
+          ) as HTMLElement | null;
+          tracklistFirstItem?.focus();
+        }
+        break;
+    }
+  }, []);
 
   return { activePanel, setActivePanel, registerPanelRef, handleKeyNavigation };
 }
@@ -141,9 +129,7 @@ export function PlaybackProvider({ children }: { children: ReactNode }) {
 
   const playNextTrack = useCallback(() => {
     if (currentTrack && playlist.length > 0) {
-      const currentIndex = playlist.findIndex(
-        (track) => track.id === currentTrack.id
-      );
+      const currentIndex = playlist.findIndex((track) => track.id === currentTrack.id);
       const nextIndex = (currentIndex + 1) % playlist.length;
       playTrack(playlist[nextIndex]);
     }
@@ -151,11 +137,8 @@ export function PlaybackProvider({ children }: { children: ReactNode }) {
 
   const playPreviousTrack = useCallback(() => {
     if (currentTrack && playlist.length > 0) {
-      const currentIndex = playlist.findIndex(
-        (track) => track.id === currentTrack.id
-      );
-      const previousIndex =
-        (currentIndex - 1 + playlist.length) % playlist.length;
+      const currentIndex = playlist.findIndex((track) => track.id === currentTrack.id);
+      const previousIndex = (currentIndex - 1 + playlist.length) % playlist.length;
       playTrack(playlist[previousIndex]);
     }
   }, [currentTrack, playlist, playTrack]);

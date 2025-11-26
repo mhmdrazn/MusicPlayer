@@ -8,9 +8,9 @@ export let getAllSongs = unstable_cache(
     return db.select().from(songs).orderBy(asc(songs.name));
   },
   ['all-songs'],
-  { 
+  {
     tags: ['songs'],
-    revalidate: 60 // Revalidate setiap 60 detik (opsional)
+    revalidate: 60, // Revalidate setiap 60 detik (opsional)
   }
 );
 
@@ -70,54 +70,29 @@ export let getPlaylistWithSongs = unstable_cache(
   { tags: ['playlists', 'songs'] }
 );
 
-export let addSongToPlaylist = async (
-  playlistId: string,
-  songId: string,
-  order: number
-) => {
-  let result = await db
-    .insert(playlistSongs)
-    .values({ playlistId, songId, order });
+export let addSongToPlaylist = async (playlistId: string, songId: string, order: number) => {
+  let result = await db.insert(playlistSongs).values({ playlistId, songId, order });
   revalidateTag('playlists');
   revalidateTag('songs'); // Tambahkan ini
   return result;
 };
 
-export let removeSongFromPlaylist = async (
-  playlistId: string,
-  songId: string
-) => {
+export let removeSongFromPlaylist = async (playlistId: string, songId: string) => {
   let result = await db
     .delete(playlistSongs)
-    .where(
-      and(
-        eq(playlistSongs.playlistId, playlistId),
-        eq(playlistSongs.songId, songId)
-      )
-    );
+    .where(and(eq(playlistSongs.playlistId, playlistId), eq(playlistSongs.songId, songId)));
   revalidateTag('playlists');
   revalidateTag('songs'); // Tambahkan ini
   return result;
 };
 
-export let createPlaylist = async (
-  id: string,
-  name: string,
-  coverUrl?: string
-) => {
-  let result = await db
-    .insert(playlists)
-    .values({ id, name, coverUrl })
-    .returning();
+export let createPlaylist = async (id: string, name: string, coverUrl?: string) => {
+  let result = await db.insert(playlists).values({ id, name, coverUrl }).returning();
   revalidateTag('playlists');
   return result[0];
 };
 
-export let updatePlaylist = async (
-  id: string,
-  name: string,
-  coverUrl?: string
-) => {
+export let updatePlaylist = async (id: string, name: string, coverUrl?: string) => {
   let result = await db
     .update(playlists)
     .set({ name, coverUrl, updatedAt: new Date() })

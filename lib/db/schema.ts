@@ -36,18 +36,12 @@ export let songs = pgTable(
     bpmIndex: index('idx_songs_bpm').on(table.bpm),
     keyIndex: index('idx_songs_key').on(table.key),
     createdAtIndex: index('idx_songs_created_at').on(table.createdAt),
-    nameTrigramIndex: index('idx_songs_name_trgm').using(
-      'gin',
-      sql`${table.name} gin_trgm_ops`
-    ),
+    nameTrigramIndex: index('idx_songs_name_trgm').using('gin', sql`${table.name} gin_trgm_ops`),
     artistTrigramIndex: index('idx_songs_artist_trgm').using(
       'gin',
       sql`${table.artist} gin_trgm_ops`
     ),
-    albumTrigramIndex: index('idx_songs_album_trgm').using(
-      'gin',
-      sql`${table.album} gin_trgm_ops`
-    ),
+    albumTrigramIndex: index('idx_songs_album_trgm').using('gin', sql`${table.album} gin_trgm_ops`),
   })
 );
 
@@ -79,15 +73,10 @@ export let playlistSongs = pgTable(
     order: integer('order').notNull(),
   },
   (table) => ({
-    playlistIdIndex: index('idx_playlist_songs_playlist_id').on(
-      table.playlistId
-    ),
+    playlistIdIndex: index('idx_playlist_songs_playlist_id').on(table.playlistId),
     songIdIndex: index('idx_playlist_songs_song_id').on(table.songId),
     orderIndex: index('idx_playlist_songs_order').on(table.order),
-    uniquePlaylistSongIndex: uniqueIndex('unq_playlist_song').on(
-      table.playlistId,
-      table.songId
-    ),
+    uniquePlaylistSongIndex: uniqueIndex('unq_playlist_song').on(table.playlistId, table.songId),
   })
 );
 
@@ -110,59 +99,59 @@ export let playlistSongsRelations = relations(playlistSongs, ({ one }) => ({
   }),
 }));
 
-export const users = pgTable("user", {
-	id: text("id")
-		.primaryKey()
-		.$defaultFn(() => crypto.randomUUID()),
-	name: text("name"),
-	email: text("email").notNull(),
-	emailVerified: timestamp("emailVerified", { mode: "date" }),
-	image: text("image"),
-	password: text("password"),
-})
+export const users = pgTable('user', {
+  id: text('id')
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  name: text('name'),
+  email: text('email').notNull(),
+  emailVerified: timestamp('emailVerified', { mode: 'date' }),
+  image: text('image'),
+  password: text('password'),
+});
 
 export const accounts = pgTable(
-	"account",
-	{
-		userId: text("userId")
-			.notNull()
-			.references(() => users.id, { onDelete: "cascade" }),
-		type: text("type").$type<"oauth" | "oidc" | "email">().notNull(),
-		provider: text("provider").notNull(),
-		providerAccountId: text("providerAccountId").notNull(),
-		refresh_token: text("refresh_token"),
-		access_token: text("access_token"),
-		expires_at: integer("expires_at"),
-		token_type: text("token_type"),
-		scope: text("scope"),
-		id_token: text("id_token"),
-		session_state: text("session_state"),
-	},
-	(account) => ({
-		compoundKey: primaryKey({
-			columns: [account.provider, account.providerAccountId],
-		}),
-	})
-)
+  'account',
+  {
+    userId: text('userId')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    type: text('type').$type<'oauth' | 'oidc' | 'email'>().notNull(),
+    provider: text('provider').notNull(),
+    providerAccountId: text('providerAccountId').notNull(),
+    refresh_token: text('refresh_token'),
+    access_token: text('access_token'),
+    expires_at: integer('expires_at'),
+    token_type: text('token_type'),
+    scope: text('scope'),
+    id_token: text('id_token'),
+    session_state: text('session_state'),
+  },
+  (account) => ({
+    compoundKey: primaryKey({
+      columns: [account.provider, account.providerAccountId],
+    }),
+  })
+);
 
-export const sessions = pgTable("session", {
-	sessionToken: text("sessionToken").primaryKey(),
-	userId: text("userId")
-		.notNull()
-		.references(() => users.id, { onDelete: "cascade" }),
-	expires: timestamp("expires", { mode: "date" }).notNull(),
-})
+export const sessions = pgTable('session', {
+  sessionToken: text('sessionToken').primaryKey(),
+  userId: text('userId')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  expires: timestamp('expires', { mode: 'date' }).notNull(),
+});
 
 export const verificationTokens = pgTable(
-	"verificationToken",
-	{
-		identifier: text("identifier").notNull(),
-		token: text("token").notNull(),
-		expires: timestamp("expires", { mode: "date" }).notNull(),
-	},
-	(verificationToken) => ({
-		compositePk: primaryKey({
-			columns: [verificationToken.identifier, verificationToken.token],
-		}),
-	})
-)
+  'verificationToken',
+  {
+    identifier: text('identifier').notNull(),
+    token: text('token').notNull(),
+    expires: timestamp('expires', { mode: 'date' }).notNull(),
+  },
+  (verificationToken) => ({
+    compositePk: primaryKey({
+      columns: [verificationToken.identifier, verificationToken.token],
+    }),
+  })
+);
