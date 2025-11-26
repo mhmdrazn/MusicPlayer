@@ -1,0 +1,2 @@
+echo "➡️  post-commit: commit recorded"
+echo "✅  post-commit: locally saved — run 'pnpm run check' to run full checks (format/lint/test)"
