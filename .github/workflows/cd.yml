@@ -172,7 +172,7 @@ jobs:
             --region ${{ env.AWS_REGION }} \
             --query 'taskDefinition.taskDefinitionArn' \
             --output text)
-          
+
           REVISION=$(echo $TASK_DEF_ARN | awk -F':' '{print $NF}')
           echo "task-definition-arn=$TASK_DEF_ARN" >> "$GITHUB_OUTPUT"
           echo "revision=$REVISION" >> "$GITHUB_OUTPUT"
@@ -212,10 +212,12 @@ jobs:
             --force-new-deployment \
             --region ${{ env.AWS_REGION }}
 
-  wait-service-stability:
-    name: Wait for Service Stability
+  health-check:
+    name: Application Health Check
     runs-on: ubuntu-latest
     needs: deploy-prod
+    outputs:
+      health-status: ${{ steps.health.outputs.status }}
     steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -234,13 +236,6 @@ jobs:
             exit 1
           }
 
-  health-check:
-    name: Application Health Check
-    runs-on: ubuntu-latest
-    needs: wait-service-stability
-    outputs:
-      health-status: ${{ steps.health.outputs.status }}
-    steps:
       - name: Health Check
         id: health
         continue-on-error: true
@@ -257,7 +252,7 @@ jobs:
             echo "Attempt $i/15: HTTP $STATUS"
             sleep 10
           done
-          
+
           echo "status=failed" >> "$GITHUB_OUTPUT"
           echo "Health check failed"
           exit 1
@@ -284,14 +279,14 @@ jobs:
             --sort DESC \
             --query 'taskDefinitionArns[0:2]' \
             --output text)
-          
+
           PREVIOUS=$(echo $TASK_DEFS | awk '{print $2}')
-          
+
           if [ -z "$PREVIOUS" ]; then
             echo "No previous task definition found"
             exit 1
           fi
-          
+
           echo "previous-task-def=$PREVIOUS" >> "$GITHUB_OUTPUT"
 
       - name: Rollback Service
