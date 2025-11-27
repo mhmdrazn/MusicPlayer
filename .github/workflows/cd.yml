@@ -57,10 +57,40 @@ jobs:
             echo "status=manual" >> "$GITHUB_OUTPUT"
           fi
 
+  apply-alb-health-check:
+    name: Update ALB Health Check Configuration
+    runs-on: ubuntu-latest
+    needs: validate-prerequisites
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.6
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::113221193811:role/music-player-github-actions-dev
+          role-session-name: GitHubActionsSession
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Terraform Init
+        run: terraform -chdir=./terraform init
+
+      - name: Apply ALB Target Group Changes
+        id: apply-alb
+        run: |
+          cd terraform
+          terraform apply -target='aws_lb_target_group.app' -auto-approve -input=false
+          echo "status=success" >> "$GITHUB_OUTPUT"
+
   build:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
-    needs: validate-prerequisites
+    needs: [validate-prerequisites, apply-alb-health-check]
     outputs:
       image: ${{ steps.build.outputs.image }}
       image-tag: ${{ steps.build.outputs.image-tag }}
