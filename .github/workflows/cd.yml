@@ -228,13 +228,18 @@ jobs:
 
       - name: Wait for Service Stability
         run: |
+          echo "Waiting for service stability (max 5 minutes)..."
+
           aws ecs wait services-stable \
             --cluster ${{ env.ECS_CLUSTER }} \
             --services ${{ env.ECS_SERVICE }} \
-            --region ${{ env.AWS_REGION }} || {
-            echo "Service did not stabilize within timeout"
+            --region ${{ env.AWS_REGION }} \
+            --max-attempts 20 || {
+            echo "Service did not stabilize within 5 minutes"
             exit 1
           }
+
+          echo "Service is stable"
 
       - name: Health Check
         id: health
