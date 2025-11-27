@@ -245,6 +245,7 @@ jobs:
 
           MAX_ATTEMPTS=30
           ATTEMPT=0
+          FAILED_TASK_COUNT=0
 
           while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
             DESIRED=$(aws ecs describe-services \
@@ -261,7 +262,21 @@ jobs:
               --query 'services[0].runningCount' \
               --output text)
             
-            echo "Attempt $((ATTEMPT+1))/$MAX_ATTEMPTS: Desired=$DESIRED, Running=$RUNNING"
+            # Check for task failures
+            TASKS=$(aws ecs list-tasks \
+              --cluster ${{ env.ECS_CLUSTER }} \
+              --service-name ${{ env.ECS_SERVICE }} \
+              --desired-status STOPPED \
+              --region ${{ env.AWS_REGION }} \
+              --query 'length(taskArns)' \
+              --output text)
+            
+            if [ "$TASKS" -gt 0 ]; then
+              echo "⚠️ WARNING: $TASKS stopped tasks detected (possible startup failures)"
+              FAILED_TASK_COUNT=$TASKS
+            fi
+            
+            echo "Attempt $((ATTEMPT+1))/$MAX_ATTEMPTS: Desired=$DESIRED, Running=$RUNNING, Stopped=$TASKS"
             
             if [ "$DESIRED" = "$RUNNING" ] && [ "$DESIRED" != "0" ]; then
               echo "✅ Service is stable"
@@ -273,6 +288,10 @@ jobs:
           done
 
           echo "⚠️ Service did not stabilize within 5 minutes"
+          if [ $FAILED_TASK_COUNT -gt 0 ]; then
+            echo "❌ ERROR: Tasks failed to start. Check CloudWatch logs for container startup errors."
+            echo "This might indicate issues with Docker image, entrypoint, or container configuration."
+          fi
           exit 1
 
       - name: Health Check

@@ -56,6 +56,17 @@ resource "aws_ecs_task_definition" "main" {
       name      = var.app_name
       image     = "${var.ecr_repository_url}:latest"
       essential = true
+      
+      # Force pull latest image every deployment (prevents stale cached images)
+      # This ensures new Docker builds are always used, not old cached versions
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"         = aws_cloudwatch_log_group.main.name
+          "awslogs-region"        = data.aws_region.current.name
+          "awslogs-stream-prefix" = "ecs"
+        }
+      }
 
       portMappings = [
         {
@@ -88,13 +99,13 @@ resource "aws_ecs_task_definition" "main" {
         }
       }
 
-      # Health check
+      # Health check - use /api/health endpoint to avoid database queries
       healthCheck = {
-        command     = ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:${var.container_port}/ || exit 1"]
+        command     = ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:${var.container_port}/api/health || exit 1"]
         interval    = 30
-        timeout     = 5
-        retries     = 3
-        startPeriod = 60
+        timeout     = 10
+        retries     = 5
+        startPeriod = 120
       }
     }
   ])
