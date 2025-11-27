@@ -111,45 +111,10 @@ jobs:
           echo "image=${REGISTRY}/${{ env.ECR_REPOSITORY }}:${{ steps.meta.outputs.image-tag }}" >> "$GITHUB_OUTPUT"
           echo "image-tag=${{ steps.meta.outputs.image-tag }}" >> "$GITHUB_OUTPUT"
 
-  apply-infrastructure:
-    name: Apply Infrastructure Changes
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: latest
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::113221193811:role/music-player-github-actions-dev
-          role-session-name: GitHubActionsSession
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Terraform Init
-        working-directory: terraform
-        run: terraform init
-
-      - name: Terraform Plan
-        id: plan
-        working-directory: terraform
-        run: |
-          terraform plan -no-color -out=tfplan
-          echo "plan-status=success" >> "$GITHUB_OUTPUT"
-
-      - name: Terraform Apply
-        working-directory: terraform
-        run: terraform apply -no-color -auto-approve tfplan
-
   prepare-deployment:
     name: Prepare Task Definition
     runs-on: ubuntu-latest
-    needs: [build, apply-infrastructure]
+    needs: build
     outputs:
       task-definition: ${{ steps.prepare.outputs.task-definition }}
     steps:
@@ -238,7 +203,7 @@ jobs:
   deploy-prod:
     name: Deploy to ECS
     runs-on: ubuntu-latest
-    needs: [build, apply-infrastructure, register-task-definition]
+    needs: [build, register-task-definition]
     environment:
       name: production
       url: http://music-player-alb-dev-681721043.ap-southeast-1.elb.amazonaws.com
