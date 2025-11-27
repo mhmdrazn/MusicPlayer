@@ -1,4 +1,4 @@
-name: CD - Build, Push to ECR, and Deploy to ECS
+name: CD
 
 on:
   push:
