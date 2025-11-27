@@ -182,7 +182,7 @@ jobs:
         id: prepare
         run: |
           cp ${{ steps.task-def.outputs.task-definition }} task-definition-updated.json
-          
+
           # Update health check configuration to use /api/health endpoint
           # This prevents health check failures due to database queries on root endpoint
           cat task-definition-updated.json | jq '.containerDefinitions[0].healthCheck |= {
@@ -192,7 +192,7 @@ jobs:
             retries: 5,
             startPeriod: 120
           }' > task-definition-updated.json.tmp && mv task-definition-updated.json.tmp task-definition-updated.json
-          
+
           echo "task-definition=task-definition-updated.json" >> "$GITHUB_OUTPUT"
 
       - name: Upload Task Definition Artifact
