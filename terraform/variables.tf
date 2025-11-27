@@ -92,15 +92,17 @@ variable "rds_engine_version" {
 }
 
 variable "rds_username" {
-  description = "RDS master username"
+  description = "RDS master username (only used if enable_rds = true)"
   type        = string
   sensitive   = true
+  default     = "admin"
 }
 
 variable "rds_password" {
-  description = "RDS master password"
+  description = "RDS master password (only used if enable_rds = true)"
   type        = string
   sensitive   = true
+  default     = "dummypassword123"
 }
 
 variable "enable_https" {

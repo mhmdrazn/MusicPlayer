@@ -1,7 +1,6 @@
 aws_region = "ap-southeast-1"
 environment = "dev"
 enable_rds = false
-rds_password = "dummy-not-used"
 
 container_environment = {
   NEXTAUTH_URL = "http://localhost:3000"
