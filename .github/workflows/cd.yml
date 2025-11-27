@@ -1,7 +1,9 @@
 name: CD Pipeline
 
 on:
-  push:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
     branches: [main]
   workflow_dispatch:
 
@@ -31,15 +33,25 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Check CI Status
+        id: check-ci
+        run: |
+          if [ "${{ github.event.workflow_run.conclusion }}" != "success" ]; then
+            echo "❌ CI workflow did not complete successfully"
+            echo "CI Status: ${{ github.event.workflow_run.conclusion }}"
+            exit 1
+          fi
+          echo "✅ CI workflow passed successfully"
+
       - name: Validate Required Secrets
-        run: echo "Validating required AWS credentials"
+        run: echo "✅ Validating required AWS credentials"
 
       - name: Trigger Status Check
         id: check-trigger
         run: |
-          if [ "${{ github.event_name }}" == "push" ]; then
-            echo "Deployment triggered by push event"
-            echo "status=push" >> "$GITHUB_OUTPUT"
+          if [ "${{ github.event_name }}" == "workflow_run" ]; then
+            echo "Deployment triggered by successful CI"
+            echo "status=ci-success" >> "$GITHUB_OUTPUT"
           else
             echo "Deployment triggered by manual dispatch"
             echo "status=manual" >> "$GITHUB_OUTPUT"
@@ -227,19 +239,41 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Wait for Service Stability
+        id: wait-stable
         run: |
-          echo "Waiting for service stability (max 5 minutes)..."
+          echo "⏳ Waiting for service stability (max 5 minutes)..."
 
-          aws ecs wait services-stable \
-            --cluster ${{ env.ECS_CLUSTER }} \
-            --services ${{ env.ECS_SERVICE }} \
-            --region ${{ env.AWS_REGION }} \
-            --max-attempts 20 || {
-            echo "Service did not stabilize within 5 minutes"
-            exit 1
-          }
+          MAX_ATTEMPTS=30
+          ATTEMPT=0
 
-          echo "Service is stable"
+          while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+            DESIRED=$(aws ecs describe-services \
+              --cluster ${{ env.ECS_CLUSTER }} \
+              --services ${{ env.ECS_SERVICE }} \
+              --region ${{ env.AWS_REGION }} \
+              --query 'services[0].desiredCount' \
+              --output text)
+            
+            RUNNING=$(aws ecs describe-services \
+              --cluster ${{ env.ECS_CLUSTER }} \
+              --services ${{ env.ECS_SERVICE }} \
+              --region ${{ env.AWS_REGION }} \
+              --query 'services[0].runningCount' \
+              --output text)
+            
+            echo "Attempt $((ATTEMPT+1))/$MAX_ATTEMPTS: Desired=$DESIRED, Running=$RUNNING"
+            
+            if [ "$DESIRED" = "$RUNNING" ] && [ "$DESIRED" != "0" ]; then
+              echo "✅ Service is stable"
+              exit 0
+            fi
+            
+            ATTEMPT=$((ATTEMPT+1))
+            sleep 10
+          done
+
+          echo "⚠️ Service did not stabilize within 5 minutes"
+          exit 1
 
       - name: Health Check
         id: health
