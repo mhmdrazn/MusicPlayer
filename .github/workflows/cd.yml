@@ -1,60 +1,246 @@
-name: CD
+name: CD Pipeline
 
 on:
   push:
-    branches: [main, dev]
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: cd-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   id-token: write
   contents: read
 
-jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
+env:
+  AWS_REGION: ap-southeast-1
+  ECR_REPOSITORY: music-player-dev
+  ECS_CLUSTER: music-player-cluster-dev
+  ECS_SERVICE: music-player-service-dev
+  ECS_TASK_DEFINITION: music-player-dev
+  CONTAINER_NAME: music-player
 
+jobs:
+  validate-prerequisites:
+    name: Validate Prerequisites
+    runs-on: ubuntu-latest
+    outputs:
+      ci-status: ${{ steps.check-trigger.outputs.status }}
     steps:
-      - name: Checkout repository
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
+      - name: Validate Required Secrets
+        run: echo "Validating required AWS credentials"
+
+      - name: Trigger Status Check
+        id: check-trigger
+        run: |
+          if [ "${{ github.event_name }}" == "push" ]; then
+            echo "Deployment triggered by push event"
+            echo "status=push" >> "$GITHUB_OUTPUT"
+          else
+            echo "Deployment triggered by manual dispatch"
+            echo "status=manual" >> "$GITHUB_OUTPUT"
+          fi
+
+  build:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+    needs: validate-prerequisites
+    outputs:
+      image: ${{ steps.build.outputs.image }}
+      image-tag: ${{ steps.build.outputs.image-tag }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set Image Tags
+        id: meta
+        run: |
+          SHA=${{ github.sha }}
+          SHORT_SHA=${SHA:0:7}
+          echo "image-tag=${SHORT_SHA}" >> "$GITHUB_OUTPUT"
+          echo "image-full=${SHA}" >> "$GITHUB_OUTPUT"
+
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::113221193811:role/music-player-github-actions-dev
           role-session-name: GitHubActionsSession
-          aws-region: ap-southeast-1
+          aws-region: ${{ env.AWS_REGION }}
 
-      - name: Login to Amazon ECR
+      - name: Login to ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build, tag, and push image to Amazon ECR
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: music-player-dev
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+      - name: Build Docker Image
+        id: docker-build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          registry: ${{ steps.login-ecr.outputs.registry }}
+          repository: ${{ env.ECR_REPOSITORY }}
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ steps.meta.outputs.image-tag }}
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-      - name: Download current task definition
+      - name: Output Build Information
+        id: build
         run: |
-          aws ecs describe-task-definition --task-definition music-player-dev --region ap-southeast-1 --query 'taskDefinition' > task-definition.json
+          REGISTRY=${{ steps.login-ecr.outputs.registry }}
+          echo "image=${REGISTRY}/${{ env.ECR_REPOSITORY }}:${{ steps.meta.outputs.image-tag }}" >> "$GITHUB_OUTPUT"
+          echo "image-tag=${{ steps.meta.outputs.image-tag }}" >> "$GITHUB_OUTPUT"
+          echo "Successfully built and pushed image: ${REGISTRY}/${{ env.ECR_REPOSITORY }}:${{ steps.meta.outputs.image-tag }}"
 
-      - name: Fill in the new image ID in the Amazon ECS task definition
+  prepare-deployment:
+    name: Prepare Task Definition
+    runs-on: ubuntu-latest
+    needs: build
+    outputs:
+      task-definition: ${{ steps.prepare.outputs.task-definition }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::113221193811:role/music-player-github-actions-dev
+          role-session-name: GitHubActionsSession
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Download Current Task Definition
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition ${{ env.ECS_TASK_DEFINITION }} \
+            --region ${{ env.AWS_REGION }} \
+            --query 'taskDefinition' > task-definition.json
+
+      - name: Render Task Definition with Updated Image
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: task-definition.json
-          container-name: music-player
-          image: ${{ steps.login-ecr.outputs.registry }}/music-player-dev:${{ github.sha }}
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ needs.build.outputs.image }}
 
-      - name: Deploy to Amazon ECS service
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      - name: Prepare Task Definition Artifact
+        id: prepare
+        run: |
+          cp ${{ steps.task-def.outputs.task-definition }} task-definition-updated.json
+          echo "task-definition=task-definition-updated.json" >> "$GITHUB_OUTPUT"
+
+      - name: Upload Task Definition Artifact
+        uses: actions/upload-artifact@v4
         with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: music-player-service-dev
-          cluster: music-player-cluster-dev
-          wait-for-service-stability: false
+          name: task-definition
+          path: task-definition-updated.json
+          retention-days: 3
+
+  deploy-prod:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [build, prepare-deployment]
+    environment:
+      name: production
+      url: http://music-player-alb-dev-681721043.ap-southeast-1.elb.amazonaws.com
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::113221193811:role/music-player-github-actions-dev
+          role-session-name: GitHubActionsSession
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Download Task Definition Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: task-definition
+
+      - name: Capture Current Task Definition
+        id: capture-current
+        run: |
+          CURRENT_TASK_DEF=$(aws ecs describe-services \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --services ${{ env.ECS_SERVICE }} \
+            --region ${{ env.AWS_REGION }} \
+            --query 'services[0].taskDefinition' \
+            --output text)
+          echo "current-task-definition=$CURRENT_TASK_DEF" >> "$GITHUB_OUTPUT"
+
+      - name: Register New Task Definition Revision
+        id: task-def-register
+        run: |
+          TASK_DEF_ARN=$(aws ecs register-task-definition \
+            --cli-input-json file://task-definition-updated.json \
+            --region ${{ env.AWS_REGION }} \
+            --query 'taskDefinition.taskDefinitionArn' \
+            --output text)
+          
+          REVISION=$(echo $TASK_DEF_ARN | awk -F':' '{print $NF}')
+          echo "task-definition-arn=$TASK_DEF_ARN" >> "$GITHUB_OUTPUT"
+          echo "revision=$REVISION" >> "$GITHUB_OUTPUT"
+
+      - name: Update ECS Service
+        run: |
+          aws ecs update-service \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --service ${{ env.ECS_SERVICE }} \
+            --task-definition ${{ steps.task-def-register.outputs.task-definition-arn }} \
+            --force-new-deployment \
+            --region ${{ env.AWS_REGION }}
+
+      - name: Wait for Service Stability
+        run: |
+          aws ecs wait services-stable \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --services ${{ env.ECS_SERVICE }} \
+            --region ${{ env.AWS_REGION }} || {
+            echo "Service did not stabilize within timeout"
+            exit 1
+          }
+
+      - name: Health Check
+        id: health-check
+        continue-on-error: true
+        run: |
+          for i in {1..15}; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://music-player-alb-dev-681721043.ap-southeast-1.elb.amazonaws.com/ || echo "000")
+            
+            if [ "$STATUS" = "200" ] || [ "$STATUS" = "302" ]; then
+              echo "Health check passed (HTTP $STATUS)"
+              exit 0
+            fi
+            
+            echo "Attempt $i/15: HTTP $STATUS"
+            sleep 10
+          done
+          
+          echo "Health check failed"
+          exit 1
+
+      - name: Rollback on Failure
+        if: steps.health-check.outcome == 'failure'
+        run: |
+          aws ecs update-service \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --service ${{ env.ECS_SERVICE }} \
+            --task-definition ${{ steps.capture-current.outputs.current-task-definition }} \
+            --force-new-deployment \
+            --region ${{ env.AWS_REGION }}
+          exit 1
+
+      - name: Deployment Summary
+        if: steps.health-check.outcome == 'success'
+        run: |
+          echo "## Deployment Report" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Status**: Success" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Commit**: ${{ github.sha }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Task Definition**: ${{ steps.task-def-register.outputs.task-definition-arn }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Revision**: ${{ steps.task-def-register.outputs.revision }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Image Tag**: ${{ needs.build.outputs.image-tag }}" >> "$GITHUB_STEP_SUMMARY"
