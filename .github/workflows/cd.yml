@@ -132,18 +132,18 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Terraform Init
-        working-directory: terraform/environments/dev
+        working-directory: terraform
         run: terraform init
 
       - name: Terraform Plan
         id: plan
-        working-directory: terraform/environments/dev
+        working-directory: terraform
         run: |
           terraform plan -no-color -out=tfplan
           echo "plan-status=success" >> "$GITHUB_OUTPUT"
 
       - name: Terraform Apply
-        working-directory: terraform/environments/dev
+        working-directory: terraform
         run: terraform apply -no-color -auto-approve tfplan
 
   prepare-deployment:
