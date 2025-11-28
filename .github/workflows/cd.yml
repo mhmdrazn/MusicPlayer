@@ -178,14 +178,14 @@ jobs:
         run: |
           cp ${{ steps.task-def.outputs.task-definition }} task-definition-updated.json
 
-          # Update health check configuration to use /api/health endpoint
-          # This prevents health check failures due to database queries on root endpoint
+          # Update health check configuration with extended startup period (180s for Supabase initialization)
+          # This prevents false health check failures during container startup
           cat task-definition-updated.json | jq '.containerDefinitions[0].healthCheck |= {
             command: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1"],
             interval: 30,
             timeout: 10,
             retries: 5,
-            startPeriod: 120
+            startPeriod: 180
           }' > task-definition-updated.json.tmp && mv task-definition-updated.json.tmp task-definition-updated.json
 
           echo "task-definition=task-definition-updated.json" >> "$GITHUB_OUTPUT"
@@ -262,8 +262,8 @@ jobs:
             --cluster ${{ env.ECS_CLUSTER }} \
             --service ${{ env.ECS_SERVICE }} \
             --task-definition ${{ needs.register-task-definition.outputs.task-definition-arn }} \
-            --force-new-deployment \
             --region ${{ env.AWS_REGION }}
+          echo "✅ Service updated (graceful rollout without force-new-deployment)"
 
   health-check:
     name: Application Health Check

@@ -48,9 +48,9 @@ USER nextjs
 # Expose port
 EXPOSE 3000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
-    CMD node -e "require('http').get('http://localhost:3000/api/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
+# Health check: Give container 3 minutes to start Next.js server + Supabase client initialization
+HEALTHCHECK --interval=30s --timeout=10s --start-period=180s --retries=5 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1
 
 # Start the application
 CMD ["node", "server.js"]
