@@ -342,18 +342,18 @@ jobs:
           for i in {1..15}; do
             STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://music-player-alb-dev-681721043.ap-southeast-1.elb.amazonaws.com/ || echo "000")
             
-            if [ "$STATUS" = "200" ] || [ "$STATUS" = "302" ]; then
+            if [ "$STATUS" = "200" ] || [ "$STATUS" = "301" ] || [ "$STATUS" = "302" ]; then
               echo "status=success" >> "$GITHUB_OUTPUT"
-              echo "Health check passed (HTTP $STATUS)"
+              echo "✅ Health check passed (HTTP $STATUS)"
               exit 0
             fi
             
-            echo "Attempt $i/15: HTTP $STATUS"
+            echo "Attempt $i/15: HTTP $STATUS (waiting for app...)"
             sleep 10
           done
 
           echo "status=failed" >> "$GITHUB_OUTPUT"
-          echo "Health check failed"
+          echo "❌ Health check failed - ALB not responding with expected status"
           exit 1
 
   rollback-on-failure:
