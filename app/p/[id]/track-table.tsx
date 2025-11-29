@@ -32,13 +32,19 @@ function TrackRow({
   isSelected: boolean;
   onSelect: () => void;
 }) {
-  let { currentTrack, playTrack, togglePlayPause, isPlaying, setActivePanel, handleKeyNavigation } =
-    usePlayback();
-  let { playlists } = usePlaylist();
+  const {
+    currentTrack,
+    playTrack,
+    togglePlayPause,
+    isPlaying,
+    setActivePanel,
+    handleKeyNavigation,
+  } = usePlayback();
+  const { playlists } = usePlaylist();
 
-  let [isFocused, setIsFocused] = useState(false);
-  let isProduction = process.env.NEXT_PUBLIC_VERCEL_ENV === 'production';
-  let isCurrentTrack = currentTrack?.name === track.name;
+  const [isFocused, setIsFocused] = useState(false);
+  const isProduction = process.env.NEXT_PUBLIC_VERCEL_ENV === 'production';
+  const isCurrentTrack = currentTrack?.name === track.name;
 
   function onClickTrackRow(e: React.MouseEvent) {
     e.preventDefault();
@@ -184,8 +190,8 @@ function TrackRow({
 }
 
 export function TrackTable({ playlist, query }: { playlist: PlaylistWithSongs; query?: string }) {
-  let tableRef = useRef<HTMLTableElement>(null);
-  let { registerPanelRef, setActivePanel, setPlaylist } = usePlayback();
+  const tableRef = useRef<HTMLTableElement>(null);
+  const { registerPanelRef, setActivePanel, setPlaylist } = usePlayback();
   const [selectedTrackId, setSelectedTrackId] = useState<string | null>(null);
 
   useEffect(() => {

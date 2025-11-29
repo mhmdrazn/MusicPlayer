@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useState, useRef, useEffect } from "react";
-import { Input } from "@/components/ui/input";
-import { updatePlaylistNameAction } from "@/app/actions";
-import { usePlaylist } from "@/app/hooks/use-playlist";
+import { useState, useRef, useEffect } from 'react';
+import { Input } from '@/components/ui/input';
+import { updatePlaylistNameAction } from '@/app/actions';
+import { usePlaylist } from '@/app/hooks/use-playlist';
 
 export function EditableTitle({
   playlistId,
@@ -26,7 +26,7 @@ export function EditableTitle({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsEditing(false);
-    if (name.trim() !== "" && name !== initialName) {
+    if (name.trim() !== '' && name !== initialName) {
       updatePlaylist(playlistId, { name });
       await updatePlaylistNameAction(playlistId, name);
     } else {
@@ -41,7 +41,7 @@ export function EditableTitle({
           ref={inputRef}
           type="text"
           value={name}
-          onChange={e => setName(e.target.value)}
+          onChange={(e) => setName(e.target.value)}
           onBlur={() => setIsEditing(false)}
           className="text-xl sm:text-2xl font-bold bg-transparent border-none focus:ring-0"
         />
@@ -53,8 +53,8 @@ export function EditableTitle({
     <h1
       className="text-xl sm:text-2xl font-bold cursor-pointer"
       onClick={() => setIsEditing(true)}
-      onKeyDown={e => {
-        if (e.key === "Enter") {
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
           e.preventDefault();
           setIsEditing(true);
         }

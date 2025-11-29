@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports, no-undef */
 /* Flat config for ESLint (compatible with ESLint v9+ & Next.js config) */
 const nextConfig = require('eslint-config-next');
 

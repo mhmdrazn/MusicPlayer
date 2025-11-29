@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 // Temporarily disable middleware - all requests pass through
 // This is a debugging step to isolate if middleware is causing the hang
 export function middleware(request: NextRequest) {
+  void request; // Acknowledged but intentionally not used
   return NextResponse.next();
 }
 

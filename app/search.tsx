@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { X } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
 
 export function SearchInput(props: { value?: string }) {
   const router = useRouter();
-  const [value, setValue] = useState(props.value ?? "");
+  const [value, setValue] = useState(props.value ?? '');
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -22,13 +22,13 @@ export function SearchInput(props: { value?: string }) {
         type="search"
         className="mb-4 bg-[#1A1A1A] border-[#333] text-xs h-8 focus-visible:ring-0 pr-8 [&::-webkit-search-cancel-button]:appearance-none"
         style={{
-          WebkitAppearance: "none",
-          MozAppearance: "none",
-          appearance: "none",
+          WebkitAppearance: 'none',
+          MozAppearance: 'none',
+          appearance: 'none',
         }}
         placeholder="Search"
         value={value}
-        onChange={e => {
+        onChange={(e) => {
           setValue(e.currentTarget.value);
         }}
       />
@@ -38,7 +38,7 @@ export function SearchInput(props: { value?: string }) {
           variant="ghost"
           size="icon"
           className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6"
-          onClick={() => setValue("")}
+          onClick={() => setValue('')}
         >
           <X className="h-4 w-4" />
           <span className="sr-only">Clear search</span>

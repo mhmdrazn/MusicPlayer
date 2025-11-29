@@ -54,17 +54,19 @@ function useKeyboardNavigation() {
 
     switch (e.key) {
       case 'ArrowDown':
-      case 'j':
+      case 'j': {
         e.preventDefault();
         const nextIndex = (currentIndex + 1) % items.length;
         (items[nextIndex] as HTMLElement).focus();
         break;
+      }
       case 'ArrowUp':
-      case 'k':
+      case 'k': {
         e.preventDefault();
         const prevIndex = (currentIndex - 1 + items.length) % items.length;
         (items[prevIndex] as HTMLElement).focus();
         break;
+      }
       case 'h':
         if (panel === 'tracklist') {
           e.preventDefault();

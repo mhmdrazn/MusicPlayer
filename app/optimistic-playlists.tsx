@@ -20,14 +20,14 @@ import { v4 as uuidv4 } from 'uuid';
 import { SearchInput } from './search';
 import { UserButton } from '@/components/user-button';
 
-let isProduction = process.env.NEXT_PUBLIC_VERCEL_ENV === 'production';
+const isProduction = process.env.NEXT_PUBLIC_VERCEL_ENV === 'production';
 
 function PlaylistRow({ playlist }: { playlist: Playlist }) {
-  let pathname = usePathname();
-  let router = useRouter();
-  let { deletePlaylist } = usePlaylist();
-  let [isPending, startTransition] = useTransition();
-  let [isDeleting, setIsDeleting] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
+  const { deletePlaylist } = usePlaylist();
+  const [isPending, startTransition] = useTransition();
+  const [isDeleting, setIsDeleting] = useState(false);
 
   async function handleDeletePlaylist(id: string) {
     if (isDeleting) return; // Prevent double clicks
@@ -110,12 +110,12 @@ function PlaylistRow({ playlist }: { playlist: Playlist }) {
 }
 
 export function OptimisticPlaylists() {
-  let { playlists, updatePlaylist } = usePlaylist();
-  let playlistsContainerRef = useRef<HTMLUListElement>(null);
-  let pathname = usePathname();
-  let router = useRouter();
-  let { registerPanelRef, handleKeyNavigation, setActivePanel } = usePlayback();
-  let [isAdding, setIsAdding] = useState(false);
+  const { playlists, updatePlaylist } = usePlaylist();
+  const playlistsContainerRef = useRef<HTMLUListElement>(null);
+  const pathname = usePathname();
+  const router = useRouter();
+  const { registerPanelRef, handleKeyNavigation, setActivePanel } = usePlayback();
+  const [isAdding, setIsAdding] = useState(false);
 
   useEffect(() => {
     registerPanelRef('sidebar', playlistsContainerRef);
@@ -127,8 +127,8 @@ export function OptimisticPlaylists() {
     setIsAdding(true);
 
     try {
-      let newPlaylistId = uuidv4();
-      let newPlaylist = {
+      const newPlaylistId = uuidv4();
+      const newPlaylist = {
         id: newPlaylistId,
         name: 'New Playlist',
         coverUrl: '',

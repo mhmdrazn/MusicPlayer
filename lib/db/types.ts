@@ -1,4 +1,4 @@
-import { playlists, playlistSongs, songs } from "./schema";
+import { playlists, playlistSongs, songs } from './schema';
 
 export type Song = typeof songs.$inferSelect;
 export type NewSong = typeof songs.$inferInsert;
