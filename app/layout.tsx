@@ -4,7 +4,8 @@ import { Inter } from 'next/font/google';
 import { ProtectedLayout } from '@/components/protected-layout';
 import { AuthProvider } from '@/components/auth-provider';
 
-export const dynamic = 'force-dynamic';
+// Remove force-dynamic to allow ISR/caching during startup
+// force-dynamic was causing every request to re-initialize app context
 
 export const metadata: Metadata = {
   title: 'Next.js Music Player',
