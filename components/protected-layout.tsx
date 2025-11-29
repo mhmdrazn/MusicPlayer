@@ -14,7 +14,7 @@ export function ProtectedLayout({
   playlistsPromise,
 }: {
   children: ReactNode;
-  playlistsPromise?: Promise<any>;
+  playlistsPromise: Promise<any>;
 }) {
   const { status } = useSession();
 

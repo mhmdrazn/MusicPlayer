@@ -20,9 +20,9 @@ export function PlaylistProvider({
   playlistsPromise,
 }: {
   children: React.ReactNode;
-  playlistsPromise?: Promise<Playlist[]>;
+  playlistsPromise: Promise<Playlist[]>;
 }) {
-  const initialPlaylists = playlistsPromise ? use(playlistsPromise) : [];
+  const initialPlaylists = use(playlistsPromise);
 
   const [playlists, setOptimisticPlaylists] = useOptimistic(
     initialPlaylists,
