@@ -1,0 +1,21 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "ec2:*",
+        "ecs:*",
+        "elasticloadbalancing:*",
+        "rds:*",
+        "iam:*",
+        "s3:*",
+        "logs:*",
+        "cloudwatch:*",
+        "secretsmanager:*",
+        "acm:*"
+      ],
+      "Effect": "Allow",
+      "Resource": "*"
+    }
+  ]
+}
