@@ -56,17 +56,6 @@ resource "aws_ecs_task_definition" "main" {
       name      = var.app_name
       image     = "${var.ecr_repository_url}:latest"
       essential = true
-      
-      # Force pull latest image every deployment (prevents stale cached images)
-      # This ensures new Docker builds are always used, not old cached versions
-      logConfiguration = {
-        logDriver = "awslogs"
-        options = {
-          "awslogs-group"         = aws_cloudwatch_log_group.main.name
-          "awslogs-region"        = data.aws_region.current.name
-          "awslogs-stream-prefix" = "ecs"
-        }
-      }
 
       portMappings = [
         {
@@ -147,6 +136,19 @@ resource "aws_ecs_service" "main" {
   task_definition = aws_ecs_task_definition.main.arn
   desired_count   = var.desired_count
   launch_type     = "FARGATE"
+
+  # Force new deployment on every task definition change
+  force_new_deployment = true
+
+  # Deployment configuration: Allow 200% for rolling updates (2 tasks during transition)
+  deployment_configuration {
+    maximum_percent            = 200
+    minimum_healthy_percent    = 100
+    deployment_circuit_breaker {
+      enable   = true
+      rollback = true
+    }
+  }
 
   network_configuration {
     subnets          = var.private_subnet_ids
