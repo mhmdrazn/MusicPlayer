@@ -138,7 +138,7 @@ export async function addToPlaylistAction(playlistId: string, songId: string) {
     revalidatePath('/', 'layout');
     revalidatePath(`/p/${playlistId}`);
 
-    return { success: true, message: 'Song added to playlist successfully' };
+    return { success: true, message: 'Songs added to playlist successfully' };
   } catch (error) {
     console.error('Error adding song to playlist:', error);
     return { success: false, message: 'Failed to add song to playlist' };
