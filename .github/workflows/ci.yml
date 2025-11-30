@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   quality:
-    name: "🔍 Quality Checks (Prettier & ESLint)"
+    name: '🔍 Quality Checks (Prettier & ESLint)'
     runs-on: ubuntu-latest
 
     steps:
@@ -38,7 +38,7 @@ jobs:
           cache: 'pnpm'
 
       - name: 📦 Install dependencies
-        run: pnpm install 
+        run: pnpm install
 
       - name: 🧹 Prettier format check
         run: pnpm run format:check
@@ -51,7 +51,7 @@ jobs:
           pnpm audit --prod || echo "⚠️ pnpm audit found issues, please review logs manually"
 
   test:
-    name: "🧪 Unit Tests (Jest + Coverage)"
+    name: '🧪 Unit Tests (Jest + Coverage)'
     runs-on: ubuntu-latest
     needs: quality
 
@@ -71,7 +71,7 @@ jobs:
           cache: 'pnpm'
 
       - name: 📦 Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install 
 
       - name: 🧪 Run Jest tests with coverage
         run: pnpm run test -- --coverage
@@ -102,7 +102,7 @@ jobs:
           fi
 
   build:
-    name: "🚀 Build Next.js App (Production Check)"
+    name: '🚀 Build Next.js App (Production Check)'
     runs-on: ubuntu-latest
     needs: test
 
@@ -132,7 +132,7 @@ jobs:
           cache: 'pnpm'
 
       - name: 📦 Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install 
 
       - name: 🧱 Build project
         run: pnpm run build

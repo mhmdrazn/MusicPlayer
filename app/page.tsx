@@ -1,7 +1,7 @@
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { TrackTable } from "./p/[id]/track-table";
-import { getAllSongs, searchSongs } from "@/lib/db/queries";
-import { Suspense } from "react";
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { TrackTable } from './p/[id]/track-table';
+import { getAllSongs, searchSongs } from '@/lib/db/queries';
+import { Suspense } from 'react';
 
 async function Tracks({ searchParams }: { searchParams: Promise<{ q: string }> }) {
   const query = (await searchParams).q;

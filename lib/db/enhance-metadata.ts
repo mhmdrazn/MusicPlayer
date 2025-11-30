@@ -1,12 +1,12 @@
-import { db } from "./drizzle";
-import { songs } from "./schema";
-import { eq, desc } from "drizzle-orm";
-import { generateObject } from "ai";
-import { openai } from "@ai-sdk/openai";
-import { z } from "zod";
+import { db } from './drizzle';
+import { songs } from './schema';
+import { eq, desc } from 'drizzle-orm';
+import { generateObject } from 'ai';
+import { openai } from '@ai-sdk/openai';
+import { z } from 'zod';
 
 export const cleanupMetadata = async () => {
-  console.log("Starting metadata cleanup process...");
+  console.log('Starting metadata cleanup process...');
 
   const allSongs = await db.select().from(songs).orderBy(desc(songs.createdAt));
 
@@ -15,7 +15,7 @@ export const cleanupMetadata = async () => {
 
     try {
       const result = await generateObject({
-        model: openai("gpt-4-turbo"),
+        model: openai('gpt-4-turbo'),
         schema: z.object({
           cleanTitle: z.string(),
           mainArtist: z.string(),
@@ -51,7 +51,7 @@ export const cleanupMetadata = async () => {
         album: cleanedMetadata.album || song.album,
         genre: cleanedMetadata.genre || song.genre,
         featuring: cleanedMetadata.featuringArtists
-          ? cleanedMetadata.featuringArtists.join(", ")
+          ? cleanedMetadata.featuringArtists.join(', ')
           : null,
       };
 
@@ -64,17 +64,17 @@ export const cleanupMetadata = async () => {
     }
   }
 
-  console.log("Metadata cleanup process completed successfully.");
+  console.log('Metadata cleanup process completed successfully.');
 };
 
 export const runCleanup = async () => {
   try {
     await cleanupMetadata();
   } catch (error) {
-    console.error("Metadata cleanup process failed:", error);
+    console.error('Metadata cleanup process failed:', error);
     process.exit(1);
   } finally {
-    console.log("Metadata cleanup process finished. Exiting...");
+    console.log('Metadata cleanup process finished. Exiting...');
     process.exit(0);
   }
 };

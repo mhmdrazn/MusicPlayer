@@ -1,32 +1,11 @@
-/* Flat config for ESLint (compatible with ESLint v9+ & Next.js config) */
-const nextConfig = require('eslint-config-next');
-
+/* Minimal flat ESLint config (CommonJS) */
 module.exports = [
-  // include Next.js recommended config
-  nextConfig && nextConfig.configs && nextConfig.configs['core-web-vitals']
-    ? nextConfig.configs['core-web-vitals']
-    : nextConfig,
-  {
-    languageOptions: {
-      ecmaVersion: 2024,
-      sourceType: 'module',
-    },
-    rules: {
-      'react/react-in-jsx-scope': 'off',
-    },
-  },
-];
-// Minimal flat ESLint config for ESLint v9+ with TypeScript support.
-// This avoids depending on the Next.js flat config to keep compatibility stable.
-const tsEslint = require('@typescript-eslint/eslint-plugin');
+  // ignore build and deps
+  { ignores: ['.next/**', 'node_modules/**', 'dist/**'] },
 
-module.exports = [
-  // Ignore build and dependency folders
+  // apply TS/JS parser and rules
   {
-    ignores: ['.next/**', 'node_modules/**'],
-  },
-  // Default language options (TS/JS)
-  {
+    files: ['**/*.{js,jsx,ts,tsx}'],
     languageOptions: {
       parser: require('@typescript-eslint/parser'),
       parserOptions: {
@@ -35,15 +14,13 @@ module.exports = [
         ecmaFeatures: { jsx: true },
       },
     },
-    plugins: { '@typescript-eslint': tsEslint },
+    plugins: { '@typescript-eslint': require('@typescript-eslint/eslint-plugin') },
     rules: {
-      // TypeScript-aware rules
+      'react/react-in-jsx-scope': 'off',
+      'no-console': 'warn',
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
       '@typescript-eslint/no-explicit-any': 'off',
-      // Allow JSX without React in scope (Next.js/automatic runtime)
-      'react/react-in-jsx-scope': 'off',
     },
   },
-  // You can add file-specific overrides here if needed.
 ];
