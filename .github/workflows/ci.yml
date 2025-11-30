@@ -71,7 +71,7 @@ jobs:
           cache: 'pnpm'
 
       - name: 📦 Install dependencies
-        run: pnpm install 
+        run: pnpm install
 
       - name: 🧪 Run Jest tests with coverage
         run: pnpm run test -- --coverage
@@ -132,7 +132,7 @@ jobs:
           cache: 'pnpm'
 
       - name: 📦 Install dependencies
-        run: pnpm install 
+        run: pnpm install
 
       - name: 🧱 Build project
         run: pnpm run build
