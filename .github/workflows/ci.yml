@@ -6,12 +6,43 @@ on:
       - main
       - dev
       - 'feature/**'
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/PULL_REQUEST_TEMPLATE/**'
+      - '.vscode/**'
+      - '.idea/**'
+      - 'design/**'
+      - 'assets/**'
+      - '**/*.png'
+      - '**/*.jpg'
+      - '**/*.jpeg'
+      - '**/*.svg'
+      - '**/*.gif'
   pull_request:
     branches:
       - main
       - dev
       - 'feature/**'
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/PULL_REQUEST_TEMPLATE/**'
+      - '.vscode/**'
+      - '.idea/**'
+      - 'design/**'
+      - 'assets/**'
+      - '**/*.png'
+      - '**/*.jpg'
+      - '**/*.jpeg'
+      - '**/*.svg'
+      - '**/*.gif'
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -19,6 +50,8 @@ concurrency:
 
 env:
   PNPM_HOME: /home/runner/.local/share/pnpm
+  NODE_VERSION: 20
+  PNPM_VERSION: 8
 
 jobs:
   quality:
@@ -29,91 +62,45 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          # Full history for git debug (optional, can be reduced later)
-          fetch-depth: 0
-
-      - name: Show Git context (debug)
-        run: |
-          echo "Commit: $GITHUB_SHA"
-          echo "Branch: $GITHUB_REF_NAME"
-          echo "Git status:"
-          git status
-          echo ""
-          echo "Last 5 commits:"
-          git log --oneline -5
+          fetch-depth: 1
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
         with:
-          version: 8
+          version: ${{ env.PNPM_VERSION }}
 
       - name: Add pnpm to PATH
-        run: echo "$PNPM_HOME/bin" >> $GITHUB_PATH
+        run: echo "$PNPM_HOME/bin" >> "$GITHUB_PATH"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'pnpm'
-
-      - name: Show Node, pnpm, and Prettier versions (debug)
-        run: |
-          echo "Node version:"
-          node -v
-          echo ""
-          echo "pnpm version:"
-          pnpm -v
-          echo ""
-          echo "Prettier version (via pnpm exec):"
-          pnpm exec prettier --version || echo "Prettier not found via pnpm exec"
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
-      - name: Run Prettier format check (with debug)
+      - name: Show tool versions
         run: |
-          # Do not stop immediately on non-zero status
+          echo "Node:"
+          node -v
+          echo "pnpm:"
+          pnpm -v
+          echo "Prettier:"
+          pnpm exec prettier --version
+
+      - name: Run Prettier format check
+        run: |
           set +e
-          echo "Running: pnpm run format:check"
           pnpm run format:check
           STATUS=$?
-          echo "Prettier exit status: $STATUS"
-          set -e
-
           if [ "$STATUS" -ne 0 ]; then
-            echo ""
-            echo "Prettier check failed. Collecting debug information."
-
-            echo ""
-            echo "Files with formatting differences (prettier --list-different .):"
-            pnpm exec prettier . --list-different || echo "No files reported by list-different"
-
-            echo ""
-            echo "Git status after Prettier check:"
-            git status
-
-            echo ""
-            echo "Showing git diff for each file reported by Prettier:"
-            FILES=$(pnpm exec prettier . --list-different || true)
-            for file in $FILES; do
-              echo "==== DIFF FOR: $file ===="
-              git diff -- "$file" || true
-              echo ""
-            done
-
-            echo ""
-            echo "Prettier detailed log for components/ui/button.tsx (if present):"
-            if [ -f components/ui/button.tsx ]; then
-              pnpm exec prettier components/ui/button.tsx --check --log-level debug || true
-            else
-              echo "components/ui/button.tsx not found in workspace."
-            fi
-
-            # Propagate original Prettier exit code so CI still fails
+            echo "Prettier reported formatting issues. Files with differences:"
+            pnpm exec prettier . --list-different || true
             exit $STATUS
-          else
-            echo "Prettier check passed."
           fi
+          set -e
 
       - name: Run ESLint
         run: pnpm run lint
@@ -130,20 +117,25 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
         with:
-          version: 8
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Add pnpm to PATH
+        run: echo "$PNPM_HOME/bin" >> "$GITHUB_PATH"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'pnpm'
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: Run Jest tests with coverage
         run: pnpm run test -- --coverage
@@ -189,20 +181,25 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
         with:
-          version: 8
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Add pnpm to PATH
+        run: echo "$PNPM_HOME/bin" >> "$GITHUB_PATH"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'pnpm'
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: Build project
         run: pnpm run build
@@ -213,7 +210,7 @@ jobs:
           echo "## CI Result" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "- Branch: \`$GITHUB_REF_NAME\`" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Commit: \`$(echo $GITHUB_SHA | cut -c1-7)\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Commit: \`$(echo "$GITHUB_SHA" | cut -c1-7)\`" >> "$GITHUB_STEP_SUMMARY"
           echo "- Quality job:  ${{ needs.quality.result || 'n/a' }}" >> "$GITHUB_STEP_SUMMARY"
           echo "- Test job:     ${{ needs.test.result || 'n/a' }}" >> "$GITHUB_STEP_SUMMARY"
           echo "- Build job:    ${{ job.status }}" >> "$GITHUB_STEP_SUMMARY"
