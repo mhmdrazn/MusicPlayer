@@ -55,7 +55,7 @@ env:
 
 jobs:
   quality:
-    name: Quality Checks (Prettier & ESLint)
+    name: Quality Checks
     runs-on: ubuntu-latest
 
     steps:
@@ -110,7 +110,7 @@ jobs:
           pnpm audit --prod || echo "pnpm audit found issues, please review logs manually"
 
   test:
-    name: Unit Tests (Jest + Coverage)
+    name: Unit Tests
     runs-on: ubuntu-latest
     needs: quality
 
@@ -135,7 +135,7 @@ jobs:
           cache: pnpm
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
       - name: Run Jest tests with coverage
         run: pnpm run test -- --coverage
@@ -164,7 +164,7 @@ jobs:
           fi
 
   build:
-    name: Build Next.js App (Production Check)
+    name: Build
     runs-on: ubuntu-latest
     needs: test
 
@@ -199,7 +199,7 @@ jobs:
           cache: pnpm
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
       - name: Build project
         run: pnpm run build
