@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 module.exports = {
   extends: ['next', 'next/core-web-vitals'],
   parserOptions: {

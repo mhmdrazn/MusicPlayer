@@ -56,6 +56,7 @@ export function AuthWall() {
         }
       }
     } catch (err) {
+      void err; // Acknowledged but intentionally not used
       setError('An error occurred. Please try again.');
     } finally {
       setLoading(false);

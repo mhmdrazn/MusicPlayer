@@ -137,12 +137,12 @@ interface EditableInputProps {
 }
 
 export function EditableInput({ initialValue, trackId, field, label }: EditableInputProps) {
-  let [isEditing, setIsEditing] = useState(false);
-  let [value, setValue] = useState(initialValue);
-  let [showCheck, setShowCheck] = useState(false);
-  let inputRef = useRef<HTMLInputElement>(null);
-  let formRef = useRef<HTMLFormElement>(null);
-  let [state, formAction, pending] = useActionState(updateTrackAction, {
+  const [isEditing, setIsEditing] = useState(false);
+  const [value, setValue] = useState(initialValue);
+  const [showCheck, setShowCheck] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  const [state, formAction, pending] = useActionState(updateTrackAction, {
     success: false,
     error: '',
   });

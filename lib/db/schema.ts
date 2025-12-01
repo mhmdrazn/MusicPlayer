@@ -11,7 +11,7 @@ import {
   primaryKey,
 } from 'drizzle-orm/pg-core';
 
-export let songs = pgTable(
+export const songs = pgTable(
   'songs',
   {
     id: uuid('id').primaryKey().defaultRandom(),
@@ -45,7 +45,7 @@ export let songs = pgTable(
   })
 );
 
-export let playlists = pgTable(
+export const playlists = pgTable(
   'playlists',
   {
     id: uuid('id').primaryKey().defaultRandom(),
@@ -60,7 +60,7 @@ export let playlists = pgTable(
   })
 );
 
-export let playlistSongs = pgTable(
+export const playlistSongs = pgTable(
   'playlist_songs',
   {
     id: uuid('id').primaryKey().defaultRandom(),
@@ -80,15 +80,15 @@ export let playlistSongs = pgTable(
   })
 );
 
-export let songsRelations = relations(songs, ({ many }) => ({
+export const songsRelations = relations(songs, ({ many }) => ({
   playlistSongs: many(playlistSongs),
 }));
 
-export let playlistsRelations = relations(playlists, ({ many }) => ({
+export const playlistsRelations = relations(playlists, ({ many }) => ({
   playlistSongs: many(playlistSongs),
 }));
 
-export let playlistSongsRelations = relations(playlistSongs, ({ one }) => ({
+export const playlistSongsRelations = relations(playlistSongs, ({ one }) => ({
   playlist: one(playlists, {
     fields: [playlistSongs.playlistId],
     references: [playlists.id],

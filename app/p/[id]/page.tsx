@@ -10,8 +10,8 @@ import { CoverImage } from './cover-image';
 import { EditableTitle } from './editable-title';
 
 export default async function PlaylistPage({ params }: { params: Promise<{ id: string }> }) {
-  let id = (await params).id;
-  let playlist = await getPlaylistWithSongs(id);
+  const id = (await params).id;
+  const playlist = await getPlaylistWithSongs(id);
 
   if (!playlist) {
     notFound();

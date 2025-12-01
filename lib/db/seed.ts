@@ -14,15 +14,15 @@ async function seed() {
 }
 
 async function seedSongs() {
-  let tracksDir = path.join(process.cwd(), 'tracks');
-  let files = await fs.readdir(tracksDir);
+  const tracksDir = path.join(process.cwd(), 'tracks');
+  const files = await fs.readdir(tracksDir);
 
-  for (let file of files.filter((file) => {
+  for (const file of files.filter((file) => {
     const ext = path.extname(file).toLowerCase();
     return ext === '.mp3' || ext === '.webm' || ext === '.wav' || ext === '.m4a';
   })) {
-    let filePath = path.join(tracksDir, file);
-    let buffer = await fs.readFile(filePath);
+    const filePath = path.join(tracksDir, file);
+    const buffer = await fs.readFile(filePath);
 
     // Determine MIME type based on file extension
     const ext = path.extname(file).toLowerCase();
@@ -33,23 +33,23 @@ async function seedSongs() {
 
     // music-metadata expects a Uint8Array/ArrayBuffer-like type for parseBuffer
     const uint8 = new Uint8Array(buffer);
-    let metadata = await parseBuffer(uint8, { mimeType });
+    const metadata = await parseBuffer(uint8, { mimeType });
 
     let imageUrl;
     if (metadata.common.picture && metadata.common.picture.length > 0) {
-      let picture = metadata.common.picture[0];
-      let imageBuffer = Buffer.from(picture.data);
-      let { url } = await put(`album_covers/${file}.${picture.format}`, imageBuffer, {
+      const picture = metadata.common.picture[0];
+      const imageBuffer = Buffer.from(picture.data);
+      const { url } = await put(`album_covers/${file}.${picture.format}`, imageBuffer, {
         access: 'public',
       });
       imageUrl = url;
     }
 
-    let { url: audioUrl } = await put(`audio/${file}`, buffer, {
+    const { url: audioUrl } = await put(`audio/${file}`, buffer, {
       access: 'public',
     });
 
-    let songData = {
+    const songData = {
       name: metadata.common.title || path.parse(file).name,
       artist: metadata.common.artist || 'Unknown Artist',
       album: metadata.common.album || 'Unknown Album',
@@ -63,7 +63,7 @@ async function seedSongs() {
     };
 
     // Check if the song already exists
-    let existingSong = await db
+    const existingSong = await db
       .select()
       .from(songs)
       .where(eq(songs.audioUrl, songData.audioUrl))
@@ -97,7 +97,7 @@ async function seedPlaylists() {
     'Future Bass',
   ];
 
-  for (let name of playlistNames) {
+  for (const name of playlistNames) {
     // Check if the playlist already exists
     const existingPlaylist = await db
       .select()

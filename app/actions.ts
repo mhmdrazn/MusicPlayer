@@ -147,8 +147,8 @@ export async function addToPlaylistAction(playlistId: string, songId: string) {
 
 export async function updateTrackAction(_: any, formData: FormData) {
   try {
-    let trackId = formData.get('trackId') as string;
-    let field = formData.get('field') as string;
+    const trackId = formData.get('trackId') as string;
+    const field = formData.get('field') as string;
     let value = formData.get(field) as string;
 
     if (field === 'bpm') {
@@ -159,7 +159,7 @@ export async function updateTrackAction(_: any, formData: FormData) {
       value = parsedValue.toString();
     }
 
-    let data: Partial<typeof songs.$inferInsert> = { [field]: value };
+    const data: Partial<typeof songs.$inferInsert> = { [field]: value };
     await db.update(songs).set(data).where(eq(songs.id, trackId));
 
     revalidatePath('/', 'layout');
@@ -173,8 +173,8 @@ export async function updateTrackAction(_: any, formData: FormData) {
 }
 
 export async function updateTrackImageAction(_: any, formData: FormData) {
-  let trackId = formData.get('trackId') as string;
-  let file = formData.get('file') as File;
+  const trackId = formData.get('trackId') as string;
+  const file = formData.get('file') as File;
 
   if (!trackId || !file) {
     return { success: false, error: 'Missing trackId or file' };

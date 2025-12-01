@@ -18,15 +18,15 @@ export function useKeyboardNavigation({
   onSelect,
   onExit,
 }: KeyboardNavigationOptions) {
-  let { activePanel, setActivePanel } = usePlayback();
+  const { activePanel, setActivePanel } = usePlayback();
 
   useEffect(() => {
-    let handleKeyDown = (e: KeyboardEvent) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (!containerRef.current) return;
 
-      let items = Array.from(containerRef.current.querySelectorAll(itemSelector));
-      let currentFocusedItem = document.activeElement as HTMLElement;
-      let currentIndex = items.indexOf(currentFocusedItem);
+      const items = Array.from(containerRef.current.querySelectorAll(itemSelector));
+      const currentFocusedItem = document.activeElement as HTMLElement;
+      const currentIndex = items.indexOf(currentFocusedItem);
 
       let newIndex: number;
 
