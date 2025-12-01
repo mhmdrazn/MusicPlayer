@@ -26,7 +26,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          # Fetch full history untuk kebutuhan debug git (opsional, bisa dikurangi kalau tidak perlu)
+          # Full history for git debug (optional, can be reduced later)
           fetch-depth: 0
 
       - name: Show Git context (debug)
@@ -35,8 +35,7 @@ jobs:
           echo "Branch: $GITHUB_REF_NAME"
           echo "Git status:"
           git status
-          echo "Tracked files:"
-          git ls-files
+          echo ""
           echo "Last 5 commits:"
           git log --oneline -5
 
@@ -53,15 +52,62 @@ jobs:
 
       - name: Show Node, pnpm, and Prettier versions (debug)
         run: |
+          echo "Node version:"
           node -v
+          echo ""
+          echo "pnpm version:"
           pnpm -v
-          pnpm prettier --version || echo "Prettier not found via pnpm"
+          echo ""
+          echo "Prettier version (via pnpm exec):"
+          pnpm exec prettier --version || echo "Prettier not found via pnpm exec"
 
       - name: Install dependencies
         run: pnpm install
 
-      - name: Run Prettier format check
-        run: pnpm run format:check
+      - name: Run Prettier format check (with debug)
+        run: |
+          # Do not stop immediately on non-zero status
+          set +e
+          echo "Running: pnpm run format:check"
+          pnpm run format:check
+          STATUS=$?
+          echo "Prettier exit status: $STATUS"
+          set -e
+
+          if [ "$STATUS" -ne 0 ]; then
+            echo ""
+            echo "Prettier check failed. Collecting debug information."
+
+            echo ""
+            echo "Files with formatting differences (prettier --list-different .):"
+            pnpm exec prettier . --list-different || echo "No files reported by list-different"
+
+            echo ""
+            echo "Git status after Prettier check:"
+            git status
+
+            echo ""
+            echo "Showing git diff for each file reported by Prettier:"
+            FILES=$(pnpm exec prettier . --list-different || true)
+            for file in $FILES; do
+              echo "==== DIFF FOR: $file ===="
+              git diff -- "$file" || true
+              echo ""
+            done
+
+            echo ""
+            echo "Prettier detailed log for components/ui/button.tsx (if present):"
+            if [ -f components/ui/button.tsx ]; then
+              pnpm exec prettier components/ui/button.tsx --check --log-level debug || true
+            else
+              echo "components/ui/button.tsx not found in workspace."
+            fi
+
+            # Propagate original Prettier exit code so CI still fails
+            exit $STATUS
+          else
+            echo "Prettier check passed."
+          fi
 
       - name: Run ESLint
         run: pnpm run lint
