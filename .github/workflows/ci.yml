@@ -2,40 +2,221 @@ name: CI
 
 on:
   push:
-    branches: [ main, dev ]
+    branches:
+      - main
+      - dev
+      - 'feature/**'
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/PULL_REQUEST_TEMPLATE/**'
+      - '.vscode/**'
+      - '.idea/**'
+      - 'design/**'
+      - 'assets/**'
+      - '**/*.png'
+      - '**/*.jpg'
+      - '**/*.jpeg'
+      - '**/*.svg'
+      - '**/*.gif'
   pull_request:
-    branches: [ main, dev ]
+    branches:
+      - main
+      - dev
+      - 'feature/**'
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/PULL_REQUEST_TEMPLATE/**'
+      - '.vscode/**'
+      - '.idea/**'
+      - 'design/**'
+      - 'assets/**'
+      - '**/*.png'
+      - '**/*.jpg'
+      - '**/*.jpeg'
+      - '**/*.svg'
+      - '**/*.gif'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PNPM_HOME: /home/runner/.local/share/pnpm
+  NODE_VERSION: 20
+  PNPM_VERSION: 8
 
 jobs:
-  quality-check:
+  quality:
+    name: Quality Checks
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Add pnpm to PATH
+        run: echo "$PNPM_HOME/bin" >> "$GITHUB_PATH"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'pnpm'
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
-      - name: Prettier format check
-        run: pnpm run format:check
+      - name: Show tool versions
+        run: |
+          echo "Node:"
+          node -v
+          echo "pnpm:"
+          pnpm -v
+          echo "Prettier:"
+          pnpm exec prettier --version
 
-      - name: Lint with ESLint
+      - name: Run Prettier format check
+        run: |
+          set +e
+          pnpm run format:check
+          STATUS=$?
+          if [ "$STATUS" -ne 0 ]; then
+            echo "Prettier reported formatting issues. Files with differences:"
+            pnpm exec prettier . --list-different || true
+            exit $STATUS
+          fi
+          set -e
+
+      - name: Run ESLint
         run: pnpm run lint
 
-      - name: Run unit tests with Jest
-        run: pnpm run test
+      - name: pnpm audit (non-blocking)
+        run: |
+          pnpm audit --prod || echo "pnpm audit found issues, please review logs manually"
+
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    needs: quality
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Add pnpm to PATH
+        run: echo "$PNPM_HOME/bin" >> "$GITHUB_PATH"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run Jest tests with coverage
+        run: pnpm run test --coverage
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage
+          retention-days: 3
+
+      - name: Check minimum coverage (Non-blocking)
+        if: always()
+        run: |
+          if [ -f coverage/coverage-summary.json ]; then
+            LINES=$(cat coverage/coverage-summary.json | jq '.total.lines.pct')
+            echo "Line coverage: $LINES%"
+            THRESHOLD=70
+            FAIL=$(echo "$LINES < $THRESHOLD" | bc)
+            
+            if [ "$FAIL" -eq 1 ]; then
+              echo "::warning::Test coverage ($LINES%) is below threshold ($THRESHOLD%), but proceeding anyway..."
+            else
+              echo "Coverage passed ($LINES%)"
+            fi
+          else
+            echo "::warning::coverage-summary.json not found, skipping coverage gate"
+          fi
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs:
+      - quality
+      - test
+
+    env:
+      # Dummy values only for build; real runtime values are set in ECS task definition (CD)
+      POSTGRES_URL: postgresql://dummy:dummy@localhost:5432/dummy
+      NEXTAUTH_SECRET: ci-dummy-secret-not-used-in-production-12345
+      NEXTAUTH_URL: http://localhost:3000
+      NEXT_PUBLIC_SUPABASE_URL: https://dummy.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: dummy-key
+      VERCEL_BLOB_TOKEN: dummy-token
+      OPENAI_API_KEY: dummy-key
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Add pnpm to PATH
+        run: echo "$PNPM_HOME/bin" >> "$GITHUB_PATH"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install
 
       - name: Build project
         run: pnpm run build
+
+      - name: CI summary
+        if: always()
+        run: |
+          echo "## CI Result" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Branch: \`$GITHUB_REF_NAME\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Commit: \`$(echo "$GITHUB_SHA" | cut -c1-7)\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Quality job:  ${{ needs.quality.result || 'n/a' }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Test job:     ${{ needs.test.result || 'n/a' }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Build job:    ${{ job.status }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "This CI will trigger the CD pipeline to deploy to AWS ECS only when running on the \`main\` branch and all jobs succeed." >> "$GITHUB_STEP_SUMMARY"

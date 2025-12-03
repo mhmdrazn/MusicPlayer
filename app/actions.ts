@@ -53,6 +53,7 @@ export async function uploadPlaylistCoverAction(_: any, formData: FormData) {
     });
 
     await db.update(playlists).set({ coverUrl: blob.url }).where(eq(playlists.id, playlistId));
+    await db.update(playlists).set({ coverUrl: blob.url }).where(eq(playlists.id, playlistId));
 
     revalidatePath(`/p/${playlistId}`);
     revalidatePath('/');
@@ -148,7 +149,7 @@ export async function addToPlaylistAction(playlistId: string, songId: string) {
     revalidatePath('/', 'layout');
     revalidatePath(`/p/${playlistId}`);
 
-    return { success: true, message: 'Song added to playlist successfully' };
+    return { success: true, message: 'Songs added to playlist successfully' };
   } catch (error) {
     console.error('Error adding song to playlist:', error);
     return { success: false, message: 'Failed to add song to playlist' };
@@ -160,8 +161,8 @@ export async function addToPlaylistAction(playlistId: string, songId: string) {
 ------------------------------------------------- */
 export async function updateTrackAction(_: any, formData: FormData) {
   try {
-    let trackId = formData.get('trackId') as string;
-    let field = formData.get('field') as string;
+    const trackId = formData.get('trackId') as string;
+    const field = formData.get('field') as string;
     let value = formData.get(field) as string;
 
     if (field === 'bpm') {
@@ -172,7 +173,7 @@ export async function updateTrackAction(_: any, formData: FormData) {
       value = parsedValue.toString();
     }
 
-    let data: Partial<typeof songs.$inferInsert> = { [field]: value };
+    const data: Partial<typeof songs.$inferInsert> = { [field]: value };
     await db.update(songs).set(data).where(eq(songs.id, trackId));
 
     revalidatePath('/', 'layout');

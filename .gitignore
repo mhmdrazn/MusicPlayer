@@ -39,3 +39,32 @@ next-env.d.ts
 # tracks
 tracks
 remote
+
+# Docker
+docker-compose.override.yml
+.docker/
+
+# Environment files
+.env.production
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE
+.idea/
+*.swp
+*.swo
+*~
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+terraform/environments/*/terraform.tfvars
+!terraform/environments/*/terraform.tfvars.example
+terraform/**/.terraform/
+terraform/**/.terraform.lock.hcl
+terraform.log
+crash.log
+crash.*.log

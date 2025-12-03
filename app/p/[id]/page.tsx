@@ -9,10 +9,10 @@ import { formatDuration } from '@/lib/utils';
 import { CoverImage } from './cover-image';
 import { EditableTitle } from './editable-title';
 
-export default async function PlaylistPage({ params }: { params: { id: string } }) {
-  const { id } = params;
-
+export default async function PlaylistPage({ params }: { params: Promise<{ id: string }> }) {
+  const id = (await params).id;
   const playlist = await getPlaylistWithSongs(id);
+
   if (!playlist) {
     notFound();
   }

@@ -19,15 +19,16 @@ import { Playlist } from '@/lib/db/types';
 import { v4 as uuidv4 } from 'uuid';
 import { SearchInput } from './search';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { UserButton } from '@/components/user-button';
 
-let isProduction = process.env.NEXT_PUBLIC_VERCEL_ENV === 'production';
+const isProduction = process.env.NEXT_PUBLIC_VERCEL_ENV === 'production';
 
 function PlaylistRow({ playlist }: { playlist: Playlist }) {
-  let pathname = usePathname();
-  let router = useRouter();
-  let { deletePlaylist } = usePlaylist();
-  let [isPending, startTransition] = useTransition();
-  let [isDeleting, setIsDeleting] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
+  const { deletePlaylist } = usePlaylist();
+  const [isPending, startTransition] = useTransition();
+  const [isDeleting, setIsDeleting] = useState(false);
 
   async function handleDeletePlaylist(id: string) {
     if (isDeleting) return; // Prevent double clicks
@@ -117,12 +118,12 @@ function PlaylistRow({ playlist }: { playlist: Playlist }) {
 }
 
 export function OptimisticPlaylists() {
-  let { playlists, updatePlaylist } = usePlaylist();
-  let playlistsContainerRef = useRef<HTMLUListElement>(null);
-  let pathname = usePathname();
-  let router = useRouter();
-  let { registerPanelRef, handleKeyNavigation, setActivePanel } = usePlayback();
-  let [isAdding, setIsAdding] = useState(false);
+  const { playlists, updatePlaylist } = usePlaylist();
+  const playlistsContainerRef = useRef<HTMLUListElement>(null);
+  const pathname = usePathname();
+  const router = useRouter();
+  const { registerPanelRef, handleKeyNavigation, setActivePanel } = usePlayback();
+  const [isAdding, setIsAdding] = useState(false);
 
   useEffect(() => {
     registerPanelRef('sidebar', playlistsContainerRef);
@@ -134,8 +135,8 @@ export function OptimisticPlaylists() {
     setIsAdding(true);
 
     try {
-      let newPlaylistId = uuidv4();
-      let newPlaylist = {
+      const newPlaylistId = uuidv4();
+      const newPlaylist = {
         id: newPlaylistId,
         name: 'New Playlist',
         coverUrl: '',
@@ -170,7 +171,7 @@ export function OptimisticPlaylists() {
 
   return (
     <div
-      className="hidden md:block w-56 bg-background border-r border-border h-[100dvh] overflow-auto"
+      className="hidden md:flex md:flex-col w-56 bg-background border-r border-border h-[100dvh]"
       onClick={() => setActivePanel('sidebar')}
     >
       {/* Header: Theme + Logout */}
@@ -187,7 +188,7 @@ export function OptimisticPlaylists() {
       </div>
 
       {/* Search */}
-      <div className="m-4">
+      <div className="flex-shrink-0 px-4 pt-4 pb-2">
         <SearchInput />
 
         <div className="mb-6">
@@ -223,11 +224,11 @@ export function OptimisticPlaylists() {
         </div>
       </div>
 
-      {/* Playlist scroll area */}
-      <ScrollArea className="h-[calc(100dvh-180px)]">
+      {/* Scrollable Playlist Area */}
+      <ScrollArea className="flex-1 min-h-0 px-0">
         <ul
           ref={playlistsContainerRef}
-          className="space-y-0.5 text-xs mt-[1px]"
+          className="space-y-0.5 text-xs"
           onKeyDown={(e) => handleKeyNavigation(e, 'sidebar')}
         >
           {playlists.map((playlist) => (
@@ -235,8 +236,10 @@ export function OptimisticPlaylists() {
           ))}
         </ul>
       </ScrollArea>
+
+      <div className="pb-16 mb-2 flex-shrink-0 border-t border-gray-800">
+        <UserButton />
+      </div>
     </div>
   );
 }
-
-//Nyoba test v2

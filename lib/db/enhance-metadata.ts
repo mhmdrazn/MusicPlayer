@@ -5,16 +5,16 @@ import { generateObject } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { z } from 'zod';
 
-export let cleanupMetadata = async () => {
+export const cleanupMetadata = async () => {
   console.log('Starting metadata cleanup process...');
 
-  let allSongs = await db.select().from(songs).orderBy(desc(songs.createdAt));
+  const allSongs = await db.select().from(songs).orderBy(desc(songs.createdAt));
 
-  for (let song of allSongs) {
+  for (const song of allSongs) {
     console.log(`Processing song: ${song.name}`);
 
     try {
-      let result = await generateObject({
+      const result = await generateObject({
         model: openai('gpt-4-turbo'),
         schema: z.object({
           cleanTitle: z.string(),
@@ -43,9 +43,9 @@ export let cleanupMetadata = async () => {
         `,
       });
 
-      let cleanedMetadata = result.object;
+      const cleanedMetadata = result.object;
 
-      let updatedSong = {
+      const updatedSong = {
         name: cleanedMetadata.cleanTitle || song.name,
         artist: cleanedMetadata.mainArtist || song.artist,
         album: cleanedMetadata.album || song.album,
@@ -67,7 +67,7 @@ export let cleanupMetadata = async () => {
   console.log('Metadata cleanup process completed successfully.');
 };
 
-export let runCleanup = async () => {
+export const runCleanup = async () => {
   try {
     await cleanupMetadata();
   } catch (error) {

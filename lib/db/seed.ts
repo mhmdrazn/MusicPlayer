@@ -14,15 +14,15 @@ async function seed() {
 }
 
 async function seedSongs() {
-  let tracksDir = path.join(process.cwd(), 'tracks');
-  let files = await fs.readdir(tracksDir);
+  const tracksDir = path.join(process.cwd(), 'tracks');
+  const files = await fs.readdir(tracksDir);
 
-  for (let file of files.filter((file) => {
+  for (const file of files.filter((file) => {
     const ext = path.extname(file).toLowerCase();
     return ext === '.mp3' || ext === '.webm' || ext === '.wav' || ext === '.m4a';
   })) {
-    let filePath = path.join(tracksDir, file);
-    let buffer = await fs.readFile(filePath);
+    const filePath = path.join(tracksDir, file);
+    const buffer = await fs.readFile(filePath);
 
     // Determine MIME type based on file extension
     const ext = path.extname(file).toLowerCase();
@@ -33,27 +33,23 @@ async function seedSongs() {
 
     // music-metadata expects a Uint8Array/ArrayBuffer-like type for parseBuffer
     const uint8 = new Uint8Array(buffer);
-    let metadata = await parseBuffer(uint8, { mimeType });
+    const metadata = await parseBuffer(uint8, { mimeType });
 
     let imageUrl;
     if (metadata.common.picture && metadata.common.picture.length > 0) {
-      let picture = metadata.common.picture[0];
-      let imageBuffer = Buffer.from(picture.data);
-      let { url } = await put(
-        `album_covers/${file}.${picture.format}`,
-        imageBuffer,
-        {
-          access: 'public',
-        }
-      );
+      const picture = metadata.common.picture[0];
+      const imageBuffer = Buffer.from(picture.data);
+      const { url } = await put(`album_covers/${file}.${picture.format}`, imageBuffer, {
+        access: 'public',
+      });
       imageUrl = url;
     }
 
-    let { url: audioUrl } = await put(`audio/${file}`, buffer, {
+    const { url: audioUrl } = await put(`audio/${file}`, buffer, {
       access: 'public',
     });
 
-    let songData = {
+    const songData = {
       name: metadata.common.title || path.parse(file).name,
       artist: metadata.common.artist || 'Unknown Artist',
       album: metadata.common.album || 'Unknown Album',
@@ -67,7 +63,7 @@ async function seedSongs() {
     };
 
     // Check if the song already exists
-    let existingSong = await db
+    const existingSong = await db
       .select()
       .from(songs)
       .where(eq(songs.audioUrl, songData.audioUrl))
@@ -75,10 +71,7 @@ async function seedSongs() {
 
     if (existingSong.length > 0) {
       // Update existing song
-      await db
-        .update(songs)
-        .set(songData)
-        .where(eq(songs.id, existingSong[0].id));
+      await db.update(songs).set(songData).where(eq(songs.id, existingSong[0].id));
       console.log(`Updated song: ${songData.name}`);
     } else {
       // Insert new song
@@ -104,7 +97,7 @@ async function seedPlaylists() {
     'Future Bass',
   ];
 
-  for (let name of playlistNames) {
+  for (const name of playlistNames) {
     // Check if the playlist already exists
     const existingPlaylist = await db
       .select()
@@ -121,8 +114,7 @@ async function seedPlaylists() {
         .insert(playlists)
         .values({
           name,
-          coverUrl:
-            'https://images.unsplash.com/photo-1470225620780-dba8ba36b745',
+          coverUrl: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745',
         })
         .returning();
       playlist = newPlaylist;
@@ -147,11 +139,7 @@ async function seedPlaylists() {
     // return the inserted row by default when calling `.returning()`.
     if (!playlist || !('id' in playlist) || !playlist.id) {
       // try to re-fetch by name as a fallback
-      const found = await db
-        .select()
-        .from(playlists)
-        .where(eq(playlists.name, name))
-        .limit(1);
+      const found = await db.select().from(playlists).where(eq(playlists.name, name)).limit(1);
       if (found.length > 0) {
         playlist = found[0];
       }
@@ -163,9 +151,7 @@ async function seedPlaylists() {
     }
 
     // Remove existing playlist songs
-    await db
-      .delete(playlistSongs)
-      .where(eq(playlistSongs.playlistId, playlist.id));
+    await db.delete(playlistSongs).where(eq(playlistSongs.playlistId, playlist.id));
 
     // Add new playlist songs
     for (let i = 0; i < playlistSongCount; i++) {

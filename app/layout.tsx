@@ -1,14 +1,16 @@
 import './globals.css';
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
-import { NowPlaying } from './now-playing';
-import { PlaybackProvider } from './playback-context';
 import { getAllPlaylists } from '@/lib/db/queries';
-import { OptimisticPlaylists } from './optimistic-playlists';
-import { PlaylistProvider } from './hooks/use-playlist';
-import { PlaybackControls } from './playback-controls';
-import { UserButton } from '@/components/user-button';
 import { ThemeProvider } from '@/components/theme-provider';
+import { OptimisticPlaylists } from './optimistic-playlists';
+import { NowPlaying } from './now-playing';
+import { PlaybackControls } from './playback-controls';
+import { PlaybackProvider } from './playback-context';
+import { PlaylistProvider } from './hooks/use-playlist';
+import { UserButton } from '@/components/user-button';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Next.js Music Player',
@@ -37,11 +39,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <PlaylistProvider playlistsPromise={playlistsPromise}>
               {/* Sidebar playlists */}
               <OptimisticPlaylists />
-
-              {/* User account button */}
-              <div className="absolute top-4 right-4 z-50">
-                <UserButton />
-              </div>
 
               {/* Main content */}
               {children}

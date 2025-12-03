@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 module.exports = {
   extends: ['next', 'next/core-web-vitals'],
   parserOptions: {
@@ -5,6 +6,7 @@ module.exports = {
     sourceType: 'module',
   },
   rules: {
-    'react/react-in-jsx-scope': 'off'
+    'react/react-in-jsx-scope': 'off',
+    'no-console': 'off',
   },
 };

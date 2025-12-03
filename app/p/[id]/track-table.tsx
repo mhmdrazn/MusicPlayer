@@ -40,15 +40,21 @@ function TrackRow({
   isSelected: boolean;
   onSelect: () => void;
 }) {
-  let { currentTrack, playTrack, togglePlayPause, isPlaying, setActivePanel, handleKeyNavigation } =
-    usePlayback();
-  let { playlists } = usePlaylist();
+  const {
+    currentTrack,
+    playTrack,
+    togglePlayPause,
+    isPlaying,
+    setActivePanel,
+    handleKeyNavigation,
+  } = usePlayback();
+  const { playlists } = usePlaylist();
 
-  let [isFocused, setIsFocused] = useState(false);
-  let isProduction = process.env.NEXT_PUBLIC_VERCEL_ENV === 'production';
+  const [isFocused, setIsFocused] = useState(false);
+  const isProduction = process.env.NEXT_PUBLIC_VERCEL_ENV === 'production';
 
-  let cleanedName = cleanTitle(track.name);
-  let isCurrentTrack = currentTrack?.name === track?.name;
+  const cleanedName = cleanTitle(track.name);
+  const isCurrentTrack = currentTrack?.name === track?.name;
 
   function onClickTrackRow(e: React.MouseEvent) {
     e.preventDefault();
@@ -201,8 +207,8 @@ function TrackRow({
 }
 
 export function TrackTable({ playlist, query }: { playlist: PlaylistWithSongs; query?: string }) {
-  let tableRef = useRef<HTMLTableElement>(null);
-  let { registerPanelRef, setActivePanel, setPlaylist } = usePlayback();
+  const tableRef = useRef<HTMLTableElement>(null);
+  const { registerPanelRef, setActivePanel, setPlaylist } = usePlayback();
   const [selectedTrackId, setSelectedTrackId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -214,13 +220,9 @@ export function TrackTable({ playlist, query }: { playlist: PlaylistWithSongs; q
   }, [playlist.songs, setPlaylist]);
 
   return (
-    <table
-      ref={tableRef}
-      className="w-full text-xs text-foreground transition-colors"
-      onClick={() => setActivePanel('tracklist')}
-    >
-      <thead className="sticky top-0 bg-background z-10 border-b border-border">
-        <tr className="text-left text-muted-foreground">
+    <table ref={tableRef} className="w-full text-xs" onClick={() => setActivePanel('tracklist')}>
+      <thead className="sticky top-0 bg-[#0A0A0A] z-10 border-b border-[#282828]">
+        <tr className="text-left text-gray-400">
           <th className="py-2 pl-3 pr-2 font-medium w-10">#</th>
           <th className="py-2 px-2 font-medium">Title</th>
           <th className="py-2 px-2 font-medium hidden sm:table-cell">Artist</th>

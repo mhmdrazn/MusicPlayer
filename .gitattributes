@@ -1,0 +1,21 @@
+# Auto detect text files and normalize line endings to LF
+* text=auto eol=lf
+
+# Specific file types
+*.js text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.jsx text eol=lf
+*.json text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.md text eol=lf
+*.cjs text eol=lf
+*.mjs text eol=lf
+
+# Ensure these files always have LF
+.github/workflows/* text eol=lf
+.eslintrc.* text eol=lf
+.commitlintrc.* text eol=lf
+.lintstagedrc.* text eol=lf
+.prettierrc text eol=lf

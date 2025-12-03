@@ -1,9 +1,5 @@
+/* eslint-disable no-undef */
 module.exports = {
-  '*.{js,jsx,ts,tsx}': [
-    'eslint --fix',
-    'prettier --write'
-  ],
-  '*.{json,md,css,scss}': [
-    'prettier --write'
-  ]
+  '*.{js,jsx,ts,tsx}': ['eslint --fix', 'prettier --write'],
+  '*.{json,md,css,scss}': ['prettier --write'],
 };

@@ -5,25 +5,40 @@ const nextConfig: NextConfig = {
     appIsrStatus: false,
   },
   experimental: {
-    ppr: true,
+    ppr: false,
     reactCompiler: true,
     serverActions: {
       bodySizeLimit: '5mb',
     },
   },
-
+  eslint: {
+    // ESLint is run separately in CI, disable during build
+    ignoreDuringBuilds: true,
+  },
   output: 'standalone',
   images: {
     remotePatterns: [
       {
         protocol: 'https',
         hostname: '*.public.blob.vercel-storage.com',
+        port: '',
+        pathname: '/**',
+        search: '',
       },
-      // jika kamu punya domain gambar tambahan, bisa ditambah di sini
-      // {
-      //   protocol: "https",
-      //   hostname: "*.supabase.co",
-      // },
+      {
+        protocol: 'https',
+        hostname: 'avatars.githubusercontent.com',
+        port: '',
+        pathname: '/**',
+        search: '',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+        port: '',
+        pathname: '/**',
+        search: '',
+      },
     ],
   },
 };
