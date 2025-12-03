@@ -12,8 +12,5 @@ module.exports = {
     '!**/*.d.ts',
     '!**/node_modules/**',
   ],
-  coveragePathIgnorePatterns: [
-    '/node_modules/',
-    '/.next/',
-  ],
+  coveragePathIgnorePatterns: ['/node_modules/', '/.next/'],
 };
