@@ -1,4 +1,6 @@
-echo "➡️  Running pre-commit checks: lint-staged (Prettier + fixes)"
+echo "➡️  Running pre-commit checks: ESLint + Prettier via lint-staged"
+
+# 1) Jalankan Lint-Staged (ESLint + Prettier)
 if pnpm -s lint-staged; then
 	echo "✅  pre-commit: lint-staged passed"
 else
@@ -6,4 +8,12 @@ else
 	exit 1
 fi
 
+# 2) Tambahan: Paksa Prettier write untuk berjaga jika ada file di luar globs lint-staged
+echo "🖋   Running Prettier format on all supported files..."
+npx prettier --write . || {
+	echo "❌  Prettier formatting failed"
+	exit 1
+}
+
+echo "🎉  Pre-Commit checks completed successfully!"
 echo "ℹ️  You can run 'pnpm run format' and 'pnpm run lint' locally to reproduce checks."

@@ -12,13 +12,18 @@ const config = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
 
   // 2. LOKASI TEST
-  // Kita paksa Jest mencari file .test.ts/.tsx di dalam folder __tests__ di root
   testMatch: [
-    '<rootDir>/__tests__/**/*.{ts,tsx,js,jsx}',
-    '<rootDir>/**/*.{spec,test}.{ts,tsx,js,jsx}',
+    '**/__tests__/**/*.[jt]s?(x)',
+    '**/?(*.)+(spec|test).[jt]s?(x)',
   ],
 
-  // 3. Coverage
+  // 3. CONFIG COVERAGE (REVISI PENTING)
+  // Menambahkan 'json-summary' agar CI bisa membaca persentase coverage
+  coverageReporters: ['text', 'lcov', 'json', 'json-summary'],
+  
+  // Memastikan folder output bernama 'coverage'
+  coverageDirectory: 'coverage',
+
   collectCoverageFrom: [
     'lib/**/*.{ts,tsx}',
     'app/**/*.{ts,tsx}',

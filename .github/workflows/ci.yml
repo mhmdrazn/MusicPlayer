@@ -138,7 +138,7 @@ jobs:
         run: pnpm install
 
       - name: Run Jest tests with coverage
-        run: pnpm run test -- --coverage
+        run: pnpm run test --coverage
 
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
