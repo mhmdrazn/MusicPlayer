@@ -12,15 +12,12 @@ const config = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
 
   // 2. LOKASI TEST
-  testMatch: [
-    '**/__tests__/**/*.[jt]s?(x)',
-    '**/?(*.)+(spec|test).[jt]s?(x)',
-  ],
+  testMatch: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)'],
 
   // 3. CONFIG COVERAGE (REVISI PENTING)
   // Menambahkan 'json-summary' agar CI bisa membaca persentase coverage
   coverageReporters: ['text', 'lcov', 'json', 'json-summary'],
-  
+
   // Memastikan folder output bernama 'coverage'
   coverageDirectory: 'coverage',
 
