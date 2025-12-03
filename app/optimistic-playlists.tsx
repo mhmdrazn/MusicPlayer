@@ -1,7 +1,7 @@
 'use client';
 
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Plus, MoreVertical, Trash } from 'lucide-react';
+import { Plus, MoreVertical, Trash, LogOut } from 'lucide-react';
 import { useRef, useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -31,7 +31,7 @@ function PlaylistRow({ playlist }: { playlist: Playlist }) {
 
   async function handleDeletePlaylist(id: string) {
     if (isDeleting) return; // Prevent double clicks
-    
+
     setIsDeleting(true);
 
     startTransition(async () => {
@@ -67,7 +67,9 @@ function PlaylistRow({ playlist }: { playlist: Playlist }) {
   }
 
   return (
-    <li className={`group relative ${isPending || isDeleting ? 'opacity-50 pointer-events-none' : ''}`}>
+    <li
+      className={`group relative ${isPending || isDeleting ? 'opacity-50 pointer-events-none' : ''}`}
+    >
       <Link
         prefetch={true}
         href={`/p/${playlist.id}`}
@@ -128,9 +130,9 @@ export function OptimisticPlaylists() {
 
   async function addPlaylistAction() {
     if (isAdding) return; // Prevent double clicks
-    
+
     setIsAdding(true);
-    
+
     try {
       let newPlaylistId = uuidv4();
       let newPlaylist = {
@@ -143,14 +145,14 @@ export function OptimisticPlaylists() {
 
       // Optimistic update
       updatePlaylist(newPlaylistId, newPlaylist);
-      
+
       // Navigate
       router.prefetch(`/p/${newPlaylistId}`);
       router.push(`/p/${newPlaylistId}`);
-      
+
       // Server action
       await createPlaylistAction(newPlaylistId, 'New Playlist');
-      
+
       // Refresh
       router.refresh();
     } catch (error) {

@@ -1,5 +1,6 @@
-'use server';
+﻿'use server';
 
+import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/db/drizzle';
 import { playlists, playlistSongs, songs } from '@/lib/db/schema';
 import { eq, and, sql } from 'drizzle-orm';
@@ -21,11 +22,11 @@ export async function createPlaylistAction(id: string, name: string) {
 
   try {
     await createPlaylist(id, name);
-    
+
     // Revalidate paths
     revalidatePath('/');
     revalidatePath(`/p/${id}`);
-    
+
     return { success: true };
   } catch (error) {
     console.error('Error creating playlist:', error);
@@ -51,10 +52,7 @@ export async function uploadPlaylistCoverAction(_: any, formData: FormData) {
       access: 'public',
     });
 
-    await db
-      .update(playlists)
-      .set({ coverUrl: blob.url })
-      .where(eq(playlists.id, playlistId));
+    await db.update(playlists).set({ coverUrl: blob.url }).where(eq(playlists.id, playlistId));
 
     revalidatePath(`/p/${playlistId}`);
     revalidatePath('/');
@@ -66,10 +64,7 @@ export async function uploadPlaylistCoverAction(_: any, formData: FormData) {
   }
 }
 
-export async function updatePlaylistNameAction(
-  playlistId: string,
-  name: string
-) {
+export async function updatePlaylistNameAction(playlistId: string, name: string) {
   // Let's only handle this on local for now
   if (process.env.VERCEL_ENV === 'production') {
     return { success: false, error: 'Not available in production' };
@@ -80,7 +75,7 @@ export async function updatePlaylistNameAction(
 
     revalidatePath('/', 'layout');
     revalidatePath(`/p/${playlistId}`);
-    
+
     return { success: true };
   } catch (error) {
     console.error('Error updating playlist name:', error);
@@ -97,10 +92,7 @@ export async function deletePlaylistAction(id: string) {
   try {
     await db.transaction(async (tx) => {
       // Delete all songs in the playlist first
-      await tx
-        .delete(playlistSongs)
-        .where(eq(playlistSongs.playlistId, id))
-        .execute();
+      await tx.delete(playlistSongs).where(eq(playlistSongs.playlistId, id)).execute();
 
       // Then delete the playlist
       await tx.delete(playlists).where(eq(playlists.id, id)).execute();
@@ -111,7 +103,7 @@ export async function deletePlaylistAction(id: string) {
     revalidatePath(`/p/${id}`); // The playlist page
     revalidatePath('/p/[id]', 'page'); // Dynamic playlist routes
     revalidatePath('/', 'layout'); // Layout cache
-    
+
     return { success: true };
   } catch (error) {
     console.error('Error deleting playlist:', error);
@@ -128,12 +120,7 @@ export async function addToPlaylistAction(playlistId: string, songId: string) {
     const existingEntry = await db
       .select()
       .from(playlistSongs)
-      .where(
-        and(
-          eq(playlistSongs.playlistId, playlistId),
-          eq(playlistSongs.songId, songId)
-        )
-      )
+      .where(and(eq(playlistSongs.playlistId, playlistId), eq(playlistSongs.songId, songId)))
       .execute();
 
     if (existingEntry.length > 0) {
@@ -187,7 +174,7 @@ export async function updateTrackAction(_: any, formData: FormData) {
 
     let data: Partial<typeof songs.$inferInsert> = { [field]: value };
     await db.update(songs).set(data).where(eq(songs.id, trackId));
-    
+
     revalidatePath('/', 'layout');
     revalidatePath('/');
 
@@ -202,16 +189,19 @@ export async function updateTrackAction(_: any, formData: FormData) {
    UPDATE TRACK IMAGE
 ------------------------------------------------- */
 export async function updateTrackImageAction(_: any, formData: FormData) {
-  const trackId = formData.get('trackId') as string;
-  const file = formData.get('file') as File;
+  try {
+    const trackId = formData.get('trackId') as string;
+    const file = formData.get('file') as File;
 
-  if (!trackId || !file) {
-    return { success: false, error: 'Missing trackId or file' };
-  }
+    if (!trackId || !file) {
+      return { success: false, error: 'Missing trackId or file' };
+    }
 
-  const blob = await put(`track-images/${trackId}-${file.name}`, file, {
-    access: 'public',
-  });
+    const blob = await put(`track-images/${trackId}-${file.name}`, file, {
+      access: 'public',
+    });
+
+    await db.update(songs).set({ imageUrl: blob.url }).where(eq(songs.id, trackId));
 
     revalidatePath('/', 'layout');
     revalidatePath('/');
@@ -228,7 +218,7 @@ export async function clearCacheAction() {
   try {
     revalidatePath('/', 'layout');
     revalidatePath('/');
-    
+
     return { success: true };
   } catch (error) {
     console.error('Error clearing cache:', error);
