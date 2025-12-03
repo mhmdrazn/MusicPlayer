@@ -171,7 +171,7 @@ export function OptimisticPlaylists() {
               pathname === '/' ? 'bg-[#1A1A1A]' : ''
             }`}
           >
-            All Tracks
+            All TrackSSSSS TES
           </Link>
         </div>
         <div className="flex justify-between items-center mb-4">
