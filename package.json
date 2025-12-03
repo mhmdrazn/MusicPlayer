@@ -15,7 +15,7 @@
     "lint": "eslint --config ./eslint.config.cjs . --ext .ts,.tsx,.js,.jsx",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "jest --runInBand --passWithNoTests",
+    "test": "jest ./__tests__ --config jest.config.cjs --runInBand --passWithNoTests",
     "check": "pnpm run format:check && pnpm run lint && pnpm run test",
     "commitlint": "commitlint --edit"
   },
