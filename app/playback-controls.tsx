@@ -3,12 +3,19 @@
 import { useEffect, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Heart, Pause, Play, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-react';
-import { Heart, Pause, Play, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-react';
 import { usePlayback } from '@/app/playback-context';
 
 /* -----------------------------------------------------------
+   HELPER: Clean Title
+   Menghilangkan "[...]" dari title
+   ----------------------------------------------------------- */
+function cleanTitle(name: string) {
+  return name.replace(/\s*\[[^\]]*\]\s*/g, '').trim();
+}
+
+/* -----------------------------------------------------------
    TRACK INFO (kiri)
------------------------------------------------------------ */
+   ----------------------------------------------------------- */
 export function TrackInfo() {
   const { currentTrack } = usePlayback();
 
@@ -22,8 +29,10 @@ export function TrackInfo() {
             className="w-10 h-10 object-cover rounded"
           />
           <div className="flex-shrink min-w-0">
-            <div className="text-sm font-medium truncate max-w-[200px]">{currentTrack.name}</div>
-            <div className="text-xs text-muted-foreground truncate max-w-[200px]">
+            <div className="text-sm font-medium truncate max-w-[200px] text-foreground">
+              {cleanTitle(currentTrack.name)}
+            </div>
+            <div className="text-xs truncate max-w-[200px] text-muted-foreground">
               {currentTrack.artist}
             </div>
           </div>
@@ -168,11 +177,11 @@ export function Volume() {
       <Button
         variant="ghost"
         size="icon"
-        className="h-8 w-8 text-foreground"
+        className="h-6 w-6 text-foreground"
         onClick={() => setIsVolumeVisible(!isVolumeVisible)}
         disabled={!currentTrack}
       >
-        {isMuted ? <VolumeX /> : <Volume2 />}
+        {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
       </Button>
 
       {isVolumeVisible && (

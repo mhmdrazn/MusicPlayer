@@ -1,7 +1,7 @@
 'use client';
 
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Plus, MoreVertical, Trash, LogOut } from 'lucide-react';
+import { Plus, MoreVertical, Trash } from 'lucide-react';
 import { useRef, useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -94,7 +94,7 @@ function PlaylistRow({ playlist }: { playlist: Playlist }) {
             <Button
               variant="ghost"
               size="icon"
-              className="h-6 w-6 text-gray-400 hover:text-white focus:text-white"
+              className="h-6 w-6 text-muted-foreground hover:text-foreground focus:text-foreground"
               disabled={isPending || isDeleting}
             >
               <MoreVertical className="h-4 w-4" />
@@ -164,31 +164,19 @@ export function OptimisticPlaylists() {
     }
   }
 
-  function handleLogout() {
-    // TODO: taruh logic logout di sini
-    console.log('Logout clicked');
-  }
-
   return (
     <div
       className="hidden md:flex md:flex-col w-56 bg-background border-r border-border h-[100dvh]"
       onClick={() => setActivePanel('sidebar')}
     >
-      {/* Header: Theme + Logout */}
-      <div className="m-4 flex items-center justify-between">
+      {/* Header: Theme Toggle */}
+      <div className="flex-shrink-0 px-4 pt-4 pb-2 flex items-center justify-between">
+        <h1 className="text-sm font-semibold text-foreground">Music Player</h1>
         <ThemeToggle />
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleLogout}
-          className="text-muted-foreground hover:text-foreground"
-        >
-          <LogOut className="h-5 w-5" />
-        </Button>
       </div>
 
       {/* Search */}
-      <div className="flex-shrink-0 px-4 pt-4 pb-2">
+      <div className="flex-shrink-0 px-4 pb-2">
         <SearchInput />
 
         <div className="mb-6">
@@ -237,7 +225,7 @@ export function OptimisticPlaylists() {
         </ul>
       </ScrollArea>
 
-      <div className="pb-16 mb-2 flex-shrink-0 border-t border-gray-800">
+      <div className="pb-16 mb-2 flex-shrink-0 border-t border-border">
         <UserButton />
       </div>
     </div>

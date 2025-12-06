@@ -54,7 +54,7 @@ function TrackRow({
   const isProduction = process.env.NEXT_PUBLIC_VERCEL_ENV === 'production';
 
   const cleanedName = cleanTitle(track.name);
-  const isCurrentTrack = currentTrack?.name === track?.name;
+  const isCurrentTrack = currentTrack?.id === track.id;
 
   function onClickTrackRow(e: React.MouseEvent) {
     e.preventDefault();
@@ -221,8 +221,8 @@ export function TrackTable({ playlist, query }: { playlist: PlaylistWithSongs; q
 
   return (
     <table ref={tableRef} className="w-full text-xs" onClick={() => setActivePanel('tracklist')}>
-      <thead className="sticky top-0 bg-[#0A0A0A] z-10 border-b border-[#282828]">
-        <tr className="text-left text-gray-400">
+      <thead className="sticky top-0 bg-background z-10 border-b border-border">
+        <tr className="text-left text-muted-foreground">
           <th className="py-2 pl-3 pr-2 font-medium w-10">#</th>
           <th className="py-2 px-2 font-medium">Title</th>
           <th className="py-2 px-2 font-medium hidden sm:table-cell">Artist</th>
