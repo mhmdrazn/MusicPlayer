@@ -1,4 +1,5 @@
 import { db } from '@/lib/db/drizzle';
+import { sql } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 
 export async function GET() {
@@ -7,7 +8,7 @@ export async function GET() {
     const users = await db.query.users.findMany();
 
     // Get table info
-    const tableInfo = await db.execute(`
+    const tableInfo = await db.execute(sql`
       SELECT column_name, data_type, is_nullable
       FROM information_schema.columns
       WHERE table_name = 'user'
