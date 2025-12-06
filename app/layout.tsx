@@ -27,7 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang="en" className={inter.className}>
-      <body className="dark flex flex-col md:flex-row h-[100dvh] text-gray-200 bg-[#0A0A0A]">
+      <body className="flex flex-col md:flex-row h-[100dvh] bg-background text-foreground antialiased">
         <AuthProvider>
           <ProtectedLayout playlistsPromise={playlistsPromise}>{children}</ProtectedLayout>
         </AuthProvider>

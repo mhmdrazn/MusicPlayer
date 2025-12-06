@@ -6,16 +6,16 @@ import { Suspense } from 'react';
 async function Tracks({ searchParams }: { searchParams: Promise<{ q: string }> }) {
   const query = (await searchParams).q;
   const songs = query ? await searchSongs(query) : await getAllSongs();
-  // @ts-expect-error: Playlist object structure type mismatch with TrackTable props
+
   return <TrackTable query={query} playlist={{ songs }} />;
 }
 
 export default function Page({ searchParams }: { searchParams: Promise<{ q: string }> }) {
   return (
-    <div className="flex-1 flex flex-col overflow-hidden bg-[#0A0A0A] pb-[69px] pt-2">
+    <div className="flex-1 flex flex-col overflow-hidden bg-background pb-[69px] pt-2 text-foreground transition-colors">
       <ScrollArea className="flex-1">
         <div className="min-w-max">
-          <Suspense fallback={<div className="w-full" />}>
+          <Suspense fallback={<div className="w-full h-10 bg-muted animate-pulse" />}>
             <Tracks searchParams={searchParams} />
           </Suspense>
         </div>

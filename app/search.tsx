@@ -20,18 +20,20 @@ export function SearchInput(props: { value?: string }) {
       <Input
         ref={inputRef}
         type="search"
-        className="mb-4 bg-[#1A1A1A] border-[#333] text-xs h-8 focus-visible:ring-0 pr-8 [&::-webkit-search-cancel-button]:appearance-none"
-        style={{
-          WebkitAppearance: 'none',
-          MozAppearance: 'none',
-          appearance: 'none',
-        }}
         placeholder="Search"
         value={value}
-        onChange={(e) => {
-          setValue(e.currentTarget.value);
-        }}
+        onChange={(e) => setValue(e.currentTarget.value)}
+        className="
+          mb-4 
+          bg-background 
+          text-foreground
+          border-border
+          h-8 pr-8
+          focus-visible:ring-1
+          focus-visible:ring-ring
+        "
       />
+
       {value ? (
         <Button
           type="button"
@@ -40,11 +42,18 @@ export function SearchInput(props: { value?: string }) {
           className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6"
           onClick={() => setValue('')}
         >
-          <X className="h-4 w-4" />
-          <span className="sr-only">Clear search</span>
+          <X className="h-4 w-4 text-foreground" />
         </Button>
       ) : (
-        <div className="absolute right-2 top-1/2 -translate-y-1/2 h-5 w-5 flex items-center justify-center bg-neutral-800 rounded text-neutral-400 border border-neutral-700">
+        <div
+          className="
+          absolute right-2 top-1/2 -translate-y-1/2
+          h-5 w-5 flex items-center justify-center  
+          rounded 
+          border border-border
+          text-muted-foreground
+        "
+        >
           <span className="font-mono text-xs">/</span>
         </div>
       )}
