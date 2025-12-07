@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Heart, Pause, Play, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-react';
+import { Heart, Pause, Play, SkipBack, SkipForward, Volume2, VolumeX, Shuffle } from 'lucide-react';
 import { usePlayback } from '@/app/playback-context';
 
 /* -----------------------------------------------------------
@@ -17,7 +17,7 @@ function cleanTitle(name: string) {
    TRACK INFO (kiri)
    ----------------------------------------------------------- */
 export function TrackInfo() {
-  const { currentTrack } = usePlayback();
+  const { currentTrack, isFavorite, toggleFavorite } = usePlayback();
 
   return (
     <div className="flex items-center space-x-3 w-1/3 text-foreground">
@@ -36,8 +36,15 @@ export function TrackInfo() {
               {currentTrack.artist}
             </div>
           </div>
-          <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0 hidden sm:flex">
-            <Heart className="w-4 h-4" />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 flex-shrink-0 hidden sm:flex"
+            onClick={() => toggleFavorite(currentTrack)}
+          >
+            <Heart
+              className={`w-4 h-4 ${isFavorite(currentTrack.id) ? 'fill-red-500 text-red-500' : ''}`}
+            />
           </Button>
         </>
       )}
@@ -49,11 +56,27 @@ export function TrackInfo() {
    PLAYBACK BUTTONS (tengah)
 ----------------------------------------------------------- */
 export function PlaybackButtons() {
-  let { isPlaying, togglePlayPause, playPreviousTrack, playNextTrack, currentTrack } =
-    usePlayback();
+  let {
+    isPlaying,
+    togglePlayPause,
+    playPreviousTrack,
+    playNextTrack,
+    currentTrack,
+    isShuffle,
+    toggleShuffle,
+  } = usePlayback();
 
   return (
     <div className="flex items-center space-x-2 text-foreground">
+      <Button
+        variant="ghost"
+        size="icon"
+        className={`h-8 w-8 ${isShuffle ? 'text-green-500' : ''}`}
+        onClick={toggleShuffle}
+        title="Toggle shuffle"
+      >
+        <Shuffle className="w-4 h-4 stroke-[1.5]" />
+      </Button>
       <Button
         variant="ghost"
         size="icon"

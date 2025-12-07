@@ -137,7 +137,7 @@ function TrackRow({
         {formatDuration(track.duration)}
       </td>
 
-      <td className="py-[2px] px-2">
+      <td className="py-[2px] px-2 relative">
         <div className="opacity-0 group-hover:opacity-100 transition-opacity">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -197,11 +197,10 @@ function TrackRow({
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
+        {(isSelected || isFocused) && (
+          <div className="absolute inset-0 border border-primary pointer-events-none" />
+        )}
       </td>
-
-      {(isSelected || isFocused) && (
-        <div className="absolute inset-0 border border-primary pointer-events-none" />
-      )}
     </tr>
   );
 }
