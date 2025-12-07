@@ -6,7 +6,7 @@ import { Suspense } from 'react';
 async function Tracks({ searchParams }: { searchParams: Promise<{ q: string }> }) {
   const query = (await searchParams).q;
   const songs = query ? await searchSongs(query) : await getAllSongs();
-
+  // @ts-expect-error: Playlist object structure type mismatch with TrackTable props
   return <TrackTable query={query} playlist={{ songs }} />;
 }
 
