@@ -12,10 +12,10 @@ async function Tracks({ searchParams }: { searchParams: Promise<{ q: string }> }
 
 export default function Page({ searchParams }: { searchParams: Promise<{ q: string }> }) {
   return (
-    <div className="flex-1 flex flex-col overflow-hidden bg-[#0A0A0A] pb-[69px] pt-2">
+    <div className="flex-1 flex flex-col overflow-hidden bg-background pb-[69px] pt-2 text-foreground transition-colors">
       <ScrollArea className="flex-1">
         <div className="min-w-max">
-          <Suspense fallback={<div className="w-full" />}>
+          <Suspense fallback={<div className="w-full h-10 bg-muted animate-pulse" />}>
             <Tracks searchParams={searchParams} />
           </Suspense>
         </div>

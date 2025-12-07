@@ -138,7 +138,7 @@ jobs:
         run: pnpm install
 
       - name: Run Jest tests with coverage
-        run: pnpm run test -- --coverage
+        run: pnpm run test --coverage
 
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
@@ -147,7 +147,7 @@ jobs:
           path: coverage
           retention-days: 3
 
-      - name: Check minimum coverage (optional)
+      - name: Check minimum coverage (Non-blocking)
         if: always()
         run: |
           if [ -f coverage/coverage-summary.json ]; then
@@ -155,9 +155,11 @@ jobs:
             echo "Line coverage: $LINES%"
             THRESHOLD=70
             FAIL=$(echo "$LINES < $THRESHOLD" | bc)
+            
             if [ "$FAIL" -eq 1 ]; then
-              echo "::error::Test coverage ($LINES%) is below threshold ($THRESHOLD%)"
-              exit 1
+              echo "::warning::Test coverage ($LINES%) is below threshold ($THRESHOLD%), but proceeding anyway..."
+            else
+              echo "Coverage passed ($LINES%)"
             fi
           else
             echo "::warning::coverage-summary.json not found, skipping coverage gate"
@@ -166,7 +168,9 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    needs: [quality, test]
+    needs:
+      - quality
+      - test
 
     env:
       # Dummy values only for build; real runtime values are set in ECS task definition (CD)

@@ -18,16 +18,17 @@ import {
 import { Playlist } from '@/lib/db/types';
 import { v4 as uuidv4 } from 'uuid';
 import { SearchInput } from './search';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { UserButton } from '@/components/user-button';
 
-let isProduction = process.env.NEXT_PUBLIC_VERCEL_ENV === 'production';
+const isProduction = process.env.NEXT_PUBLIC_VERCEL_ENV === 'production';
 
 function PlaylistRow({ playlist }: { playlist: Playlist }) {
-  let pathname = usePathname();
-  let router = useRouter();
-  let { deletePlaylist } = usePlaylist();
-  let [isPending, startTransition] = useTransition();
-  let [isDeleting, setIsDeleting] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
+  const { deletePlaylist } = usePlaylist();
+  const [isPending, startTransition] = useTransition();
+  const [isDeleting, setIsDeleting] = useState(false);
 
   async function handleDeletePlaylist(id: string) {
     if (isDeleting) return; // Prevent double clicks
@@ -73,26 +74,33 @@ function PlaylistRow({ playlist }: { playlist: Playlist }) {
       <Link
         prefetch={true}
         href={`/p/${playlist.id}`}
-        className={`block py-1 px-4 cursor-pointer hover:bg-[#1A1A1A] text-[#d1d5db] focus:outline-none focus:ring-[0.5px] focus:ring-gray-400 ${
-          pathname === `/p/${playlist.id}` ? 'bg-[#1A1A1A]' : ''
-        }`}
-        tabIndex={0}
+        className={`
+          block py-1 px-4 cursor-pointer 
+          hover:bg-accent hover:text-foreground 
+          text-muted-foreground 
+          rounded-sm
+          focus:outline-none
+          focus:ring-1
+          focus:ring-primary
+          ${pathname === `/p/${playlist.id}` ? 'bg-accent text-foreground' : ''}
+        `}
       >
         {playlist.name}
       </Link>
-      <div className="absolute right-2 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100">
+
+      <div className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
               size="icon"
-              className="h-6 w-6 text-gray-400 hover:text-white focus:text-white"
+              className="h-6 w-6 text-muted-foreground hover:text-foreground focus:text-foreground"
               disabled={isPending || isDeleting}
             >
               <MoreVertical className="h-4 w-4" />
-              <span className="sr-only">Playlist options</span>
             </Button>
           </DropdownMenuTrigger>
+
           <DropdownMenuContent align="end" className="w-36">
             <DropdownMenuItem
               disabled={isProduction || isPending || isDeleting}
@@ -110,12 +118,12 @@ function PlaylistRow({ playlist }: { playlist: Playlist }) {
 }
 
 export function OptimisticPlaylists() {
-  let { playlists, updatePlaylist } = usePlaylist();
-  let playlistsContainerRef = useRef<HTMLUListElement>(null);
-  let pathname = usePathname();
-  let router = useRouter();
-  let { registerPanelRef, handleKeyNavigation, setActivePanel } = usePlayback();
-  let [isAdding, setIsAdding] = useState(false);
+  const { playlists, updatePlaylist } = usePlaylist();
+  const playlistsContainerRef = useRef<HTMLUListElement>(null);
+  const pathname = usePathname();
+  const router = useRouter();
+  const { registerPanelRef, handleKeyNavigation, setActivePanel } = usePlayback();
+  const [isAdding, setIsAdding] = useState(false);
 
   useEffect(() => {
     registerPanelRef('sidebar', playlistsContainerRef);
@@ -127,8 +135,8 @@ export function OptimisticPlaylists() {
     setIsAdding(true);
 
     try {
-      let newPlaylistId = uuidv4();
-      let newPlaylist = {
+      const newPlaylistId = uuidv4();
+      const newPlaylist = {
         id: newPlaylistId,
         name: 'New Playlist',
         coverUrl: '',
@@ -158,29 +166,38 @@ export function OptimisticPlaylists() {
 
   return (
     <div
-      className="hidden md:flex md:flex-col w-56 bg-[#121212] h-[100dvh] border-r border-gray-800"
+      className="hidden md:flex md:flex-col w-56 bg-background border-r border-border h-[100dvh]"
       onClick={() => setActivePanel('sidebar')}
     >
-      {/* Header Section */}
-      <div className="flex-shrink-0 px-4 pt-4 pb-2">
+      {/* Header: Theme Toggle */}
+      <div className="flex-shrink-0 px-4 pt-4 pb-2 flex items-center justify-between">
+        <h1 className="text-sm font-semibold text-foreground">Music Player</h1>
+        <ThemeToggle />
+      </div>
+
+      {/* Search */}
+      <div className="flex-shrink-0 px-4 pb-2">
         <SearchInput />
+
         <div className="mb-6">
           <Link
             href="/"
-            className={`block py-1 px-4 -mx-4 text-xs text-[#d1d5db] hover:bg-[#1A1A1A] transition-colors focus:outline-none focus:ring-[0.5px] focus:ring-gray-400 ${
-              pathname === '/' ? 'bg-[#1A1A1A]' : ''
-            }`}
+            className={`
+              block py-1 px-4 -mx-4 text-xs 
+              text-muted-foreground 
+              hover:bg-accent hover:text-foreground 
+              rounded-sm
+              ${pathname === '/' ? 'bg-accent text-foreground' : ''}
+            `}
           >
             All Tracks
           </Link>
         </div>
+
+        {/* Playlists header */}
         <div className="flex justify-between items-center mb-4">
-          <Link
-            href="/"
-            className="text-xs font-semibold text-gray-400 hover:text-white transition-colors"
-          >
-            Playlists
-          </Link>
+          <span className="text-xs font-semibold text-muted-foreground">Playlists</span>
+
           <form action={addPlaylistAction}>
             <Button
               disabled={isProduction || isAdding}
@@ -189,8 +206,7 @@ export function OptimisticPlaylists() {
               className="h-5 w-5"
               type="submit"
             >
-              <Plus className="w-3 h-3 text-gray-400" />
-              <span className="sr-only">Add new playlist</span>
+              <Plus className="w-3 h-3 text-muted-foreground" />
             </Button>
           </form>
         </div>
@@ -209,7 +225,7 @@ export function OptimisticPlaylists() {
         </ul>
       </ScrollArea>
 
-      <div className="pb-16 mb-2 flex-shrink-0 border-t border-gray-800">
+      <div className="pb-16 mb-2 flex-shrink-0 border-t border-border">
         <UserButton />
       </div>
     </div>

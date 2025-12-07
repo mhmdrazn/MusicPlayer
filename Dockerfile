@@ -30,9 +30,6 @@ RUN pnpm build
 # Stage 2: Production Runtime
 FROM node:22-alpine
 
-# Install dumb-init to handle signals properly
-RUN apk add --no-cache dumb-init
-
 # Create app user for security
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nextjs -u 1001
@@ -51,12 +48,9 @@ USER nextjs
 # Expose port
 EXPOSE 3000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD node -e "require('http').get('http://localhost:3000/api/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
-
-# Use dumb-init to run node
-ENTRYPOINT ["/sbin/dumb-init", "--"]
+# Health check: Give container 3 minutes to start Next.js server + Supabase client initialization
+HEALTHCHECK --interval=30s --timeout=10s --start-period=180s --retries=5 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1
 
 # Start the application
 CMD ["node", "server.js"]

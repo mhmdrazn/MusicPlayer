@@ -44,6 +44,7 @@ async function setupLocalPostgres() {
     await execAsync('docker --version');
     console.log('Docker is installed.');
   } catch (error) {
+    void error; // Acknowledged but intentionally not used
     console.error('Docker is not installed. Please install Docker and try again.');
     console.log('To install Docker, visit: https://docs.docker.com/get-docker/');
     process.exit(1);
@@ -76,6 +77,7 @@ volumes:
     await execAsync('docker compose up -d');
     console.log('Docker container started successfully.');
   } catch (error) {
+    void error; // Acknowledged but intentionally not used
     console.error(
       'Failed to start Docker container. Please check your Docker installation and try again.'
     );

@@ -58,10 +58,10 @@ resource "aws_lb_target_group" "app" {
 
   health_check {
     healthy_threshold   = 2
-    unhealthy_threshold = 3
-    timeout             = 5
+    unhealthy_threshold = 5
+    timeout             = 10
     interval            = 30
-    path                = "/"
+    path                = "/api/health"
     matcher             = "200"
   }
 

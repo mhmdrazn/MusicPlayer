@@ -88,13 +88,13 @@ resource "aws_ecs_task_definition" "main" {
         }
       }
 
-      # Health check
+      # Health check - use /api/health endpoint to avoid database queries
       healthCheck = {
-        command     = ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:${var.container_port}/ || exit 1"]
+        command     = ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:${var.container_port}/api/health || exit 1"]
         interval    = 30
-        timeout     = 5
-        retries     = 3
-        startPeriod = 60
+        timeout     = 10
+        retries     = 5
+        startPeriod = 120
       }
     }
   ])
@@ -136,6 +136,19 @@ resource "aws_ecs_service" "main" {
   task_definition = aws_ecs_task_definition.main.arn
   desired_count   = var.desired_count
   launch_type     = "FARGATE"
+
+  # Force new deployment on every task definition change
+  force_new_deployment = true
+
+  # Deployment configuration: Allow 200% for rolling updates (2 tasks during transition)
+  deployment_configuration {
+    maximum_percent            = 200
+    minimum_healthy_percent    = 100
+    deployment_circuit_breaker {
+      enable   = true
+      rollback = true
+    }
+  }
 
   network_configuration {
     subnets          = var.private_subnet_ids
