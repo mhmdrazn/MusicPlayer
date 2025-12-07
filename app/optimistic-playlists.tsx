@@ -21,8 +21,6 @@ import { SearchInput } from './search';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { UserButton } from '@/components/user-button';
 
-const isProduction = process.env.NEXT_PUBLIC_VERCEL_ENV === 'production';
-
 function PlaylistRow({ playlist }: { playlist: Playlist }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -103,7 +101,7 @@ function PlaylistRow({ playlist }: { playlist: Playlist }) {
 
           <DropdownMenuContent align="end" className="w-36">
             <DropdownMenuItem
-              disabled={isProduction || isPending || isDeleting}
+              disabled={isPending || isDeleting}
               onClick={() => handleDeletePlaylist(playlist.id)}
               className="text-xs"
             >
@@ -124,6 +122,7 @@ export function OptimisticPlaylists() {
   const router = useRouter();
   const { registerPanelRef, handleKeyNavigation, setActivePanel } = usePlayback();
   const [isAdding, setIsAdding] = useState(false);
+  const [_isPending, startTransition] = useTransition();
 
   useEffect(() => {
     registerPanelRef('sidebar', playlistsContainerRef);
@@ -144,8 +143,10 @@ export function OptimisticPlaylists() {
         updatedAt: new Date(),
       };
 
-      // Optimistic update
-      updatePlaylist(newPlaylistId, newPlaylist);
+      // Wrap optimistic update in startTransition
+      startTransition(() => {
+        updatePlaylist(newPlaylistId, newPlaylist);
+      });
 
       // Navigate
       router.prefetch(`/p/${newPlaylistId}`);
@@ -198,17 +199,16 @@ export function OptimisticPlaylists() {
         <div className="flex justify-between items-center mb-4">
           <span className="text-xs font-semibold text-muted-foreground">Playlists</span>
 
-          <form action={addPlaylistAction}>
-            <Button
-              disabled={isProduction || isAdding}
-              variant="ghost"
-              size="icon"
-              className="h-5 w-5"
-              type="submit"
-            >
-              <Plus className="w-3 h-3 text-muted-foreground" />
-            </Button>
-          </form>
+          <Button
+            disabled={isAdding}
+            variant="ghost"
+            size="icon"
+            className="h-5 w-5"
+            onClick={addPlaylistAction}
+            type="button"
+          >
+            <Plus className="w-3 h-3 text-muted-foreground" />
+          </Button>
         </div>
       </div>
 
