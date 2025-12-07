@@ -116,7 +116,15 @@ export function PlaybackProvider({ children }: { children: ReactNode }) {
       if (isPlaying) {
         audioRef.current.pause();
       } else {
-        audioRef.current.play();
+        const playPromise = audioRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise.catch((error) => {
+            // Playback was interrupted or failed
+            if (error.name !== 'AbortError') {
+              console.warn('Playback error:', error);
+            }
+          });
+        }
       }
       setIsPlaying(!isPlaying);
     }
@@ -129,7 +137,21 @@ export function PlaybackProvider({ children }: { children: ReactNode }) {
       setCurrentTime(0);
       if (audioRef.current) {
         audioRef.current.src = getAudioSrc(track.audioUrl as string);
-        audioRef.current.play();
+        // Create a promise for play() to handle interruptions gracefully
+        const playPromise = audioRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              // Auto-play started successfully
+            })
+            .catch((error) => {
+              // Playback was interrupted or failed - this is normal
+              // Don't treat it as a hard error
+              if (error.name !== 'AbortError') {
+                console.warn('Playback error:', error);
+              }
+            });
+        }
       }
       setActivePanel('tracklist');
     },
