@@ -1,12 +1,19 @@
-'use server';
+﻿'use server';
 
-import { createPlaylist } from '@/lib/db/queries';
 import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/db/drizzle';
 import { playlists, playlistSongs, songs } from '@/lib/db/schema';
 import { eq, and, sql } from 'drizzle-orm';
 import { put } from '@vercel/blob';
+import {
+  createPlaylist,
+  updatePlaylist as updatePlaylistQuery,
+  deletePlaylist as deletePlaylistQuery,
+} from '@/lib/db/queries';
 
+/* -------------------------------------------------
+   CREATE PLAYLIST
+------------------------------------------------- */
 export async function createPlaylistAction(id: string, name: string) {
   // Let's only handle this on local for now
   if (process.env.VERCEL_ENV === 'production') {
@@ -45,6 +52,7 @@ export async function uploadPlaylistCoverAction(_: any, formData: FormData) {
       access: 'public',
     });
 
+    await db.update(playlists).set({ coverUrl: blob.url }).where(eq(playlists.id, playlistId));
     await db.update(playlists).set({ coverUrl: blob.url }).where(eq(playlists.id, playlistId));
 
     revalidatePath(`/p/${playlistId}`);
@@ -104,6 +112,9 @@ export async function deletePlaylistAction(id: string) {
   }
 }
 
+/* -------------------------------------------------
+   ADD SONG TO PLAYLIST
+------------------------------------------------- */
 export async function addToPlaylistAction(playlistId: string, songId: string) {
   try {
     // Check if the song is already in the playlist
@@ -145,6 +156,9 @@ export async function addToPlaylistAction(playlistId: string, songId: string) {
   }
 }
 
+/* -------------------------------------------------
+   UPDATE TRACK FIELDS (TITLE, ARTIST, BPM, ETC)
+------------------------------------------------- */
 export async function updateTrackAction(_: any, formData: FormData) {
   try {
     const trackId = formData.get('trackId') as string;
@@ -172,15 +186,18 @@ export async function updateTrackAction(_: any, formData: FormData) {
   }
 }
 
+/* -------------------------------------------------
+   UPDATE TRACK IMAGE
+------------------------------------------------- */
 export async function updateTrackImageAction(_: any, formData: FormData) {
-  const trackId = formData.get('trackId') as string;
-  const file = formData.get('file') as File;
-
-  if (!trackId || !file) {
-    return { success: false, error: 'Missing trackId or file' };
-  }
-
   try {
+    const trackId = formData.get('trackId') as string;
+    const file = formData.get('file') as File;
+
+    if (!trackId || !file) {
+      return { success: false, error: 'Missing trackId or file' };
+    }
+
     const blob = await put(`track-images/${trackId}-${file.name}`, file, {
       access: 'public',
     });

@@ -19,35 +19,34 @@ export function NowPlaying() {
   useEffect(() => {
     let timer: NodeJS.Timeout;
 
-    // Delay showing the edit icon
-    // When transitioning from pending back to finished
     if (!imagePending) {
-      timer = setTimeout(() => {
-        setShowPencil(true);
-      }, 300);
+      timer = setTimeout(() => setShowPencil(true), 300);
     } else {
       setShowPencil(false);
     }
+
     return () => clearTimeout(timer);
   }, [imagePending]);
 
-  if (!currentTrack) {
-    return null;
-  }
+  if (!currentTrack) return null;
 
   const currentImageUrl = imageState?.success ? imageState.imageUrl : currentTrack.imageUrl;
 
   return (
-    <div className="hidden md:flex flex-col w-56 p-4 bg-[#121212] overflow-auto">
-      <h2 className="mb-3 text-sm font-semibold text-gray-200">Now Playing</h2>
+    <div className="hidden md:flex flex-col w-56 p-4 bg-background border-l border-border overflow-auto">
+      <h2 className="mb-3 text-sm font-semibold text-foreground">Now Playing</h2>
+
+      {/* Cover */}
       <div className="relative w-full aspect-square mb-3 group">
         <img
           src={currentImageUrl || '/placeholder.svg'}
           alt={currentTrack.name}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover rounded-md"
         />
+
         <form action={imageFormAction} className="absolute inset-0">
           <input type="hidden" name="trackId" value={currentTrack.id} />
+
           <label
             htmlFor="imageUpload"
             className="absolute inset-0 cursor-pointer flex items-center justify-center"
@@ -70,23 +69,26 @@ export function NowPlaying() {
                 }
               }}
             />
+
+            {/* Overlay & icon */}
             <div
               className={cn(
-                'group-hover:bg-black group-hover:bg-opacity-50 rounded-full p-2',
-                imagePending && 'bg-opacity-50'
+                'rounded-full p-2 transition-colors',
+                'bg-black/40 dark:bg-white/20 opacity-0 group-hover:opacity-100',
+                imagePending && 'opacity-100'
               )}
             >
               {imagePending ? (
                 <Loader2 className="w-6 h-6 text-white animate-spin" />
               ) : (
-                showPencil && (
-                  <PencilIcon className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                )
+                showPencil && <PencilIcon className="w-6 h-6 text-white transition-opacity" />
               )}
             </div>
           </label>
         </form>
       </div>
+
+      {/* Editable fields */}
       <div className="w-full space-y-1">
         <EditableInput
           initialValue={currentTrack.name}
@@ -137,20 +139,18 @@ interface EditableInputProps {
 }
 
 export function EditableInput({ initialValue, trackId, field, label }: EditableInputProps) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [value, setValue] = useState(initialValue);
-  const [showCheck, setShowCheck] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const formRef = useRef<HTMLFormElement>(null);
-  const [state, formAction, pending] = useActionState(updateTrackAction, {
+  let [isEditing, setIsEditing] = useState(false);
+  let [value, setValue] = useState(initialValue);
+  let [showCheck, setShowCheck] = useState(false);
+  let inputRef = useRef<HTMLInputElement>(null);
+  let formRef = useRef<HTMLFormElement>(null);
+  let [state, formAction, pending] = useActionState(updateTrackAction, {
     success: false,
     error: '',
   });
 
   useEffect(() => {
-    if (isEditing) {
-      inputRef.current?.focus();
-    }
+    if (isEditing) inputRef.current?.focus();
   }, [isEditing]);
 
   useEffect(() => {
@@ -162,9 +162,7 @@ export function EditableInput({ initialValue, trackId, field, label }: EditableI
   useEffect(() => {
     if (state.success) {
       setShowCheck(true);
-      const timer = setTimeout(() => {
-        setShowCheck(false);
-      }, 2000);
+      const timer = setTimeout(() => setShowCheck(false), 2000);
       return () => clearTimeout(timer);
     }
   }, [state.success]);
@@ -174,7 +172,6 @@ export function EditableInput({ initialValue, trackId, field, label }: EditableI
       setIsEditing(false);
       return;
     }
-
     formRef.current?.requestSubmit();
     setIsEditing(false);
   }
@@ -194,56 +191,50 @@ export function EditableInput({ initialValue, trackId, field, label }: EditableI
       <label htmlFor={`${field}-input`} className="text-xs text-muted-foreground">
         {label}
       </label>
-      <div className="flex items-center justify-between w-full text-xs h-3 border-b border-transparent focus-within:border-white transition-colors">
+
+      <div className="flex items-center justify-between w-full text-xs border-b border-border focus-within:border-primary transition-colors">
         {isEditing ? (
           <form ref={formRef} action={formAction} className="w-full">
             <input type="hidden" name="trackId" value={trackId} />
             <input type="hidden" name="field" value={field} />
+
             <input
               ref={inputRef}
               id={`${field}-input`}
               type="text"
               name={field}
               value={value}
-              onChange={(e) => setValue(e.target.value)}
               onKeyDown={handleKeyDown}
               onBlur={handleSubmit}
+              onChange={(e) => setValue(e.target.value)}
               className={cn(
-                'bg-transparent w-full focus:outline-none p-0',
+                'bg-transparent w-full focus:outline-none p-0 text-foreground',
                 state.error && 'text-red-500'
               )}
-              aria-invalid={state.error ? 'true' : 'false'}
-              aria-describedby={state.error ? `${field}-error` : undefined}
             />
           </form>
         ) : (
           <div
-            className="w-full cursor-pointer truncate block"
+            className="w-full cursor-pointer truncate text-foreground"
             onClick={() => setIsEditing(true)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                setIsEditing(true);
-              }
-            }}
-            aria-label={`Edit ${label}`}
           >
-            <span className={cn(value ? '' : 'text-muted-foreground')}>{value || '-'}</span>
+            <span className={cn(!value && 'text-muted-foreground')}>{value || '-'}</span>
           </div>
         )}
-        <div className="flex items-center">
+
+        <div className="flex items-center pl-2">
           {pending ? (
-            <Loader2 className="size-3 animate-spin" />
+            <Loader2 className="w-3 h-3 animate-spin" />
           ) : showCheck ? (
-            <CheckIcon className="size-3 text-green-500" />
+            <CheckIcon className="w-3 h-3 text-green-500" />
           ) : (
             !isEditing && (
-              <PencilIcon className="size-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <PencilIcon className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
             )
           )}
         </div>
       </div>
+
       {state.error && (
         <p id={`${field}-error`} className="text-xs text-red-500">
           {state.error}

@@ -7,6 +7,7 @@ import { OptimisticPlaylists } from '@/app/optimistic-playlists';
 import { PlaylistProvider } from '@/app/hooks/use-playlist';
 import { PlaybackControls } from '@/app/playback-controls';
 import { NowPlaying } from '@/app/now-playing';
+import { ThemeProvider } from '@/components/theme-provider';
 import { ReactNode } from 'react';
 
 export function ProtectedLayout({
@@ -31,13 +32,15 @@ export function ProtectedLayout({
   }
 
   return (
-    <PlaybackProvider>
-      <PlaylistProvider playlistsPromise={playlistsPromise}>
-        <OptimisticPlaylists />
-        {children}
-      </PlaylistProvider>
-      <NowPlaying />
-      <PlaybackControls />
-    </PlaybackProvider>
+    <ThemeProvider>
+      <PlaybackProvider>
+        <PlaylistProvider playlistsPromise={playlistsPromise}>
+          <OptimisticPlaylists />
+          {children}
+        </PlaylistProvider>
+        <NowPlaying />
+        <PlaybackControls />
+      </PlaybackProvider>
+    </ThemeProvider>
   );
 }
