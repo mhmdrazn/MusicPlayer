@@ -15,11 +15,6 @@ import {
    CREATE PLAYLIST
 ------------------------------------------------- */
 export async function createPlaylistAction(id: string, name: string) {
-  // Let's only handle this on local for now
-  if (process.env.VERCEL_ENV === 'production') {
-    return { success: false, error: 'Not available in production' };
-  }
-
   try {
     await createPlaylist(id, name);
 
@@ -35,11 +30,6 @@ export async function createPlaylistAction(id: string, name: string) {
 }
 
 export async function uploadPlaylistCoverAction(_: any, formData: FormData) {
-  // Let's only handle this on local for now
-  if (process.env.VERCEL_ENV === 'production') {
-    return { success: false, error: 'Not available in production' };
-  }
-
   const playlistId = formData.get('playlistId') as string;
   const file = formData.get('file') as File;
 
@@ -66,11 +56,6 @@ export async function uploadPlaylistCoverAction(_: any, formData: FormData) {
 }
 
 export async function updatePlaylistNameAction(playlistId: string, name: string) {
-  // Let's only handle this on local for now
-  if (process.env.VERCEL_ENV === 'production') {
-    return { success: false, error: 'Not available in production' };
-  }
-
   try {
     await db.update(playlists).set({ name }).where(eq(playlists.id, playlistId));
 
@@ -85,11 +70,6 @@ export async function updatePlaylistNameAction(playlistId: string, name: string)
 }
 
 export async function deletePlaylistAction(id: string) {
-  // Let's only handle this on local for now
-  if (process.env.VERCEL_ENV === 'production') {
-    return { success: false, error: 'Not available in production' };
-  }
-
   try {
     await db.transaction(async (tx) => {
       // Delete all songs in the playlist first
