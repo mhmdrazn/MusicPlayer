@@ -1,16 +1,16 @@
-# 🎵 Music Player
+# Music Player
 
 **ES234632 - Pengembangan Sistem dan Operasi**
 
 A full-stack web-based music streaming application with playlist management, secure authentication, and cloud-based storage.
 
-## 👥 Group 8
+## Group 8
 
 - Satria Pinandita (5026231004)
 - Kevin Nathanael (5026231079)
 - Muhammad Razan Parisya Putra (5026231174)
 
-## ✨ Features
+## Features
 
 - Stream MP3 audio files with embedded metadata
 - Create and manage custom playlists
@@ -21,7 +21,7 @@ A full-stack web-based music streaming application with playlist management, sec
 - Responsive design for desktop and mobile
 - Real-time search functionality
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 **Frontend**: Next.js 14, React 18, TypeScript, Tailwind CSS, ShadCN/UI  
 **Backend**: Next.js API Routes, NextAuth.js  
@@ -32,7 +32,7 @@ A full-stack web-based music streaming application with playlist management, sec
 **Deployment**: Vercel, AWS ECS with ALB  
 **CI/CD**: GitHub Actions
 
-## 🏗️ Technical Architecture
+## Technical Architecture
 
 ### Technology Stack
 
@@ -72,7 +72,7 @@ The application follows a client-server architecture with the following layers:
 4. **Data Access Layer**: Drizzle ORM providing type-safe database queries
 5. **Storage Layer**: PostgreSQL for structured data, Vercel Blob for unstructured media files
 
-## 📦 Installation and Setup
+## Installation and Setup
 
 ### System Requirements
 
@@ -150,7 +150,7 @@ pnpm dev
 
 The development server will start on `http://localhost:3000`. The application supports hot module replacement for rapid development iteration.
 
-## 🎧 Audio File Management
+## Audio File Management
 
 ### Supported Audio Format
 
@@ -224,7 +224,7 @@ The `lib/db/seed.ts` script provides comprehensive audio management:
 5. **Playlist Creation**: Organizes songs into themed collections
 6. **Error Handling**: Gracefully handles missing metadata or upload failures
 
-## 🔐 Authentication System
+## Authentication System
 
 ### OAuth 2.0 Implementation
 
@@ -321,7 +321,7 @@ The application uses JWT (JSON Web Token) based sessions:
 - **Storage**: Secure HTTP-only cookies
 - **CSRF Protection**: Enabled by default in NextAuth.js
 
-## 👨‍💻 Development Workflow
+## Development Workflow
 
 ### Project Structure
 
@@ -451,7 +451,7 @@ pnpm db:setup
 pnpm db:validate
 ```
 
-## 🧪 Testing Strategy
+## Testing Strategy
 
 ### Test Coverage
 
@@ -509,7 +509,166 @@ pnpm test utils.test.ts
 pnpm test --testNamePattern="formatBytes"
 ```
 
-## 🚀 Continuous Integration and Deployment
+## API Documentation
+
+### REST API Endpoints
+
+#### Authentication Endpoints
+
+**Sign In with Email/Password**
+
+```
+POST /api/auth/signin
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "password123"
+}
+
+Response: 200 OK
+{
+  "user": {
+    "id": "uuid",
+    "email": "user@example.com",
+    "name": "User Name"
+  },
+  "session": "jwt-token"
+}
+```
+
+**User Registration**
+
+```
+POST /api/auth/register
+Content-Type: application/json
+
+{
+  "email": "newuser@example.com",
+  "password": "secure_password",
+  "name": "New User"
+}
+
+Response: 201 Created
+{
+  "user": {
+    "id": "uuid",
+    "email": "newuser@example.com",
+    "name": "New User"
+  }
+}
+```
+
+#### Song Management Endpoints
+
+**Retrieve All Songs**
+
+```
+GET /api/songs
+Query Parameters: none
+
+Response: 200 OK
+[
+  {
+    "id": "uuid",
+    "title": "Song Title",
+    "artist": "Artist Name",
+    "album": "Album Name",
+    "duration": 240,
+    "imageUrl": "https://...",
+    "audioUrl": "https://..."
+  },
+  ...
+]
+```
+
+**Stream Audio File**
+
+```
+GET /api/audio/{filename}
+
+Response: 206 Partial Content
+[Binary MP3 data with Range header support]
+```
+
+#### Playlist Management Endpoints
+
+**Get User Playlists**
+
+```
+GET /api/playlists
+Authorization: Bearer {jwt-token}
+
+Response: 200 OK
+[
+  {
+    "id": "uuid",
+    "name": "Playlist Name",
+    "description": "Description",
+    "coverUrl": "https://...",
+    "songs": [...]
+  },
+  ...
+]
+```
+
+**Create Playlist**
+
+```
+POST /api/playlists
+Authorization: Bearer {jwt-token}
+Content-Type: application/json
+
+{
+  "name": "My Playlist",
+  "description": "Description",
+  "isPublic": false
+}
+
+Response: 201 Created
+{
+  "id": "uuid",
+  "name": "My Playlist",
+  ...
+}
+```
+
+#### Favorites Management
+
+**Get Favorite Songs**
+
+```
+GET /api/favorites
+Authorization: Bearer {jwt-token}
+
+Response: 200 OK
+[{song}, ...]
+```
+
+**Add to Favorites**
+
+```
+POST /api/favorites
+Authorization: Bearer {jwt-token}
+Content-Type: application/json
+
+{
+  "songId": "uuid"
+}
+
+Response: 201 Created
+```
+
+**Remove from Favorites**
+
+```
+DELETE /api/favorites/{songId}
+Authorization: Bearer {jwt-token}
+
+Response: 204 No Content
+```
+
+## Continuous Integration and Deployment
 
 ### CI/CD Pipeline Overview
 
@@ -608,7 +767,7 @@ aws ecs update-service --cluster prod --service music-player \
   --force-new-deployment
 ```
 
-## 🛡️ Security Considerations
+## Security Considerations
 
 ### Authentication Security
 
@@ -632,7 +791,7 @@ aws ecs update-service --cluster prod --service music-player \
 - CORS configuration for cross-origin requests
 - Content Security Policy headers
 
-## ⚡ Performance Optimization
+## Performance Optimization
 
 ### Frontend Optimization
 
@@ -655,7 +814,7 @@ aws ecs update-service --cluster prod --service music-player \
 - CDN distribution of static assets
 - Database index optimization on frequently queried columns
 
-## 🐛 Troubleshooting Guide
+## Troubleshooting Guide
 
 ### Database Connection Issues
 
@@ -701,6 +860,72 @@ aws ecs update-service --cluster prod --service music-player \
 3. Check TypeScript errors: `pnpm tsc --noEmit`
 4. Verify all environment variables are set
 
+## Contributing Guidelines
+
+### Branch Strategy
+
+Use Git flow branching model:
+
+- `main`: Production-ready code
+- `dev`: Integration branch for features
+- `feature/*`: Feature development branches
+- `bugfix/*`: Bug fix branches
+
+### Development Process
+
+1. Create feature branch from `dev`:
+
+   ```bash
+   git checkout -b feature/feature-name
+   ```
+
+2. Make changes and commit with conventional commits:
+
+   ```bash
+   git commit -m 'feat: add new feature'
+   git commit -m 'fix: resolve bug'
+   git commit -m 'docs: update documentation'
+   ```
+
+3. Run tests and checks:
+
+   ```bash
+   pnpm lint && pnpm format && pnpm test
+   ```
+
+4. Push changes and create Pull Request:
+
+   ```bash
+   git push origin feature/feature-name
+   ```
+
+5. Pull Request review and merge to `dev`
+
+### Code Quality Standards
+
+- Code coverage minimum 80% for new code
+- ESLint errors must be resolved
+- Prettier formatting required
+- Conventional commit messages mandatory
+- Documentation updated for new features
+
+## References and Resources
+
+### Documentation
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [NextAuth.js Guide](https://next-auth.js.org)
+- [Drizzle ORM](https://orm.drizzle.team)
+- [Tailwind CSS](https://tailwindcss.com/docs)
+- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
+
+### Course Materials
+
+- ES234632 Course Syllabus
+- System Development Best Practices
+- Cloud Architecture Patterns
+- CI/CD Implementation Guide
+
 ## Project Status and Changelog
 
 **Current Version**: 1.0.0  
@@ -725,3 +950,252 @@ For questions or issues regarding this project:
 ---
 
 **Disclaimer**: This project is created as a final assignment for ES234632 course. All external libraries and tools are used in accordance with their respective licenses.
+
+| Layer          | Technology                                             |
+| -------------- | ------------------------------------------------------ |
+| **Frontend**   | Next.js 14, TypeScript, React, Tailwind CSS, ShadCN/UI |
+| **Backend**    | Next.js API Routes, NextAuth.js, Drizzle ORM           |
+| **Database**   | PostgreSQL (Supabase)                                  |
+| **Storage**    | Vercel Blob                                            |
+| **Deployment** | Vercel, AWS ECS, AWS ALB                               |
+| **Testing**    | Jest, Testing Library                                  |
+| **Quality**    | ESLint, Prettier, Husky                                |
+| **CI/CD**      | GitHub Actions                                         |
+
+## 📋 Prerequisites
+
+- Node.js 18+ and pnpm 8+
+- Git
+- PostgreSQL database (Supabase)
+- Vercel account (for Blob storage)
+- GitHub OAuth app credentials
+
+## 🚀 Quick Start
+
+### 1. Clone Repository
+
+```bash
+git clone https://github.com/mhmdrazn/FP-PSO25.git
+cd Music-Player
+```
+
+### 2. Install Dependencies
+
+```bash
+pnpm install
+```
+
+### 3. Configure Environment
+
+Create `.env.local`:
+
+```env
+# NextAuth
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=$(openssl rand -base64 32)
+
+# GitHub OAuth
+GITHUB_ID=<your-oauth-client-id>
+GITHUB_SECRET=<your-oauth-client-secret>
+
+# Database
+DATABASE_URL=postgresql://user:password@host:5432/music_player
+
+# Storage
+BLOB_READ_WRITE_TOKEN=<vercel-blob-token>
+```
+
+### 4. Setup Database
+
+```bash
+pnpm db:migrate      # Run migrations
+pnpm db:seed        # Populate with sample data
+```
+
+### 5. Run Development Server
+
+```bash
+pnpm dev
+```
+
+Open [http://localhost:3000](http://localhost:3000)
+
+## 🎵 Adding Music
+
+### Download from YouTube
+
+```bash
+yt-dlp -x --audio-format mp3 --add-metadata --embed-thumbnail "https://www.youtube.com/playlist?list=..."
+```
+
+Files download to `tracks/` folder with:
+
+- ✅ MP3 format with embedded metadata (artist, title, album)
+- ✅ Embedded cover images (PNG)
+
+### Seed to Database
+
+```bash
+pnpm db:seed
+```
+
+Automatically:
+
+1. Extracts metadata from MP3 files
+2. Uploads audio to Vercel Blob (`audio/` folder)
+3. Uploads covers to Vercel Blob (`album_covers/` folder)
+4. Inserts songs and playlists into PostgreSQL
+
+## 📁 Project Structure
+
+```
+├── app/
+│   ├── api/                    # API routes
+│   │   ├── auth/              # Authentication
+│   │   ├── audio/             # Audio streaming
+│   │   └── favorites/         # Favorite management
+│   ├── p/[id]/                # Playlist pages
+│   └── layout.tsx             # Root layout
+├── components/                 # React components
+│   ├── ui/                    # ShadCN components
+│   └── auth-wall.tsx          # Auth wrapper
+├── lib/
+│   ├── auth.ts                # NextAuth config
+│   ├── db/                    # Database layer
+│   │   ├── schema.ts          # Database schema
+│   │   ├── seed.ts            # Seed script
+│   │   └── migrations/        # Migration files
+│   ├── helpers.ts             # Utility functions
+│   ├── string-utils.ts        # String utilities
+│   └── number-utils.ts        # Number utilities
+├── __tests__/                  # Test files
+│   ├── utils.test.ts          # 10 tests
+│   ├── string-utils.test.ts   # 22 tests
+│   └── number-utils.test.ts   # 4 tests
+└── tracks/                     # Local audio files (MP3)
+```
+
+## 🔐 Authentication
+
+### GitHub OAuth Setup
+
+1. GitHub Settings → Developer settings → OAuth Apps → New OAuth App
+2. Configure:
+   - **Homepage URL**: Your app URL
+   - **Authorization callback URL**: `{YOUR_URL}/api/auth/callback/github`
+3. Copy Client ID and Secret
+4. Add to `.env.local`
+
+### Email/Password
+
+Users can register with email/password (bcrypt hashed).
+
+## 🗄️ Database Schema
+
+- **users** - User accounts
+- **songs** - Music tracks with metadata
+- **playlists** - User playlists
+- **playlist_songs** - Playlist relationships
+- **favorites** - Favorite tracks
+
+## 🧪 Testing & Quality
+
+```bash
+pnpm test              # Run all tests
+pnpm test:watch      # Watch mode
+pnpm test:coverage   # Coverage report
+pnpm lint            # ESLint
+pnpm format          # Prettier
+```
+
+**Coverage**: 100% ✅  
+**Tests**: 36 passing ✅
+
+## 📊 Available Scripts
+
+```bash
+# Development
+pnpm dev              # Start dev server
+pnpm build            # Production build
+pnpm start            # Start production
+
+# Database
+pnpm db:setup         # Setup environment
+pnpm db:migrate       # Run migrations
+pnpm db:seed          # Seed data
+pnpm db:studio        # Drizzle Studio
+
+# Quality
+pnpm test             # Run tests
+pnpm lint             # Lint code
+pnpm format           # Format code
+```
+
+## 🚀 Deployment
+
+### Vercel
+
+```bash
+vercel
+```
+
+### AWS ECS
+
+```bash
+docker build -t music-player .
+aws ecr push music-player
+```
+
+## 🔄 CI/CD Pipeline
+
+GitHub Actions automatically:
+
+- ✅ Lint code (ESLint)
+- ✅ Check formatting (Prettier)
+- ✅ Run tests (Jest)
+- ✅ Build project
+- ✅ Deploy to Vercel & AWS
+
+Workflow: `.github/workflows/ci.yml`
+
+## 🐛 Troubleshooting
+
+### Database Connection Error
+
+- Verify `DATABASE_URL` in `.env.local`
+- Check Supabase database is running
+
+### Authentication Error
+
+- Verify GitHub OAuth credentials
+- Check `NEXTAUTH_URL` matches your domain
+- Ensure callback URLs match in GitHub settings
+
+### Audio Not Playing
+
+- Verify MP3 files are in `tracks/` folder
+- Run `pnpm db:seed` to upload files
+- Check Vercel Blob quota
+
+## 📝 Notes
+
+- MP3 files must have embedded metadata (artist, title, album)
+- Cover images are automatically extracted from MP3 files
+- Use `yt-dlp` with `--embed-thumbnail` flag for best results
+- Vercel Blob has storage limits based on plan
+
+## 🤝 Contributing
+
+1. Create feature branch: `git checkout -b feature/your-feature`
+2. Make changes and test: `pnpm test`
+3. Commit: `git commit -m 'feat: description'`
+4. Push: `git push origin feature/your-feature`
+5. Open Pull Request
+
+## 📄 License
+
+Course assignment - ES234632 Pengembangan Sistem dan Operasi
+
+---
+
+**Last Updated**: 15 December 2025
