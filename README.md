@@ -4,6 +4,8 @@
 
 A full-stack web-based music streaming application with playlist management, secure authentication, and cloud-based storage.
 
+**Production Deployment**: http://music-player-alb-dev-68407666.ap-southeast-1.elb.amazonaws.com
+
 ## Group 8
 
 - Satria Pinandita (5026231004)
