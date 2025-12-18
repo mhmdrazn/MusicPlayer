@@ -70,7 +70,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::113221193811:role/music-player-github-actions-dev
+          role-to-assume: arn:aws:iam::739654145351:role/music-player-github-actions-dev
           role-session-name: GitHubActionsSession
           aws-region: ${{ env.AWS_REGION }}
 
@@ -105,7 +105,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::113221193811:role/music-player-github-actions-dev
+          role-to-assume: arn:aws:iam::739654145351:role/music-player-github-actions-dev
           role-session-name: GitHubActionsSession
           aws-region: ${{ env.AWS_REGION }}
 
@@ -151,7 +151,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::113221193811:role/music-player-github-actions-dev
+          role-to-assume: arn:aws:iam::739654145351:role/music-player-github-actions-dev
           role-session-name: GitHubActionsSession
           aws-region: ${{ env.AWS_REGION }}
 
@@ -205,7 +205,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::113221193811:role/music-player-github-actions-dev
+          role-to-assume: arn:aws:iam::739654145351:role/music-player-github-actions-dev
           role-session-name: GitHubActionsSession
           aws-region: ${{ env.AWS_REGION }}
 
@@ -239,7 +239,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::113221193811:role/music-player-github-actions-dev
+          role-to-assume: arn:aws:iam::739654145351:role/music-player-github-actions-dev
           role-session-name: GitHubActionsSession
           aws-region: ${{ env.AWS_REGION }}
 
@@ -274,7 +274,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::113221193811:role/music-player-github-actions-dev
+          role-to-assume: arn:aws:iam::739654145351:role/music-player-github-actions-dev
           role-session-name: GitHubActionsSession
           aws-region: ${{ env.AWS_REGION }}
 
@@ -364,7 +364,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::113221193811:role/music-player-github-actions-dev
+          role-to-assume: arn:aws:iam::739654145351:role/music-player-github-actions-dev
           role-session-name: GitHubActionsSession
           aws-region: ${{ env.AWS_REGION }}
 
