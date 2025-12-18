@@ -141,14 +141,8 @@ resource "aws_ecs_service" "main" {
   force_new_deployment = true
 
   # Deployment configuration: Allow 200% for rolling updates (2 tasks during transition)
-  deployment_configuration {
-    maximum_percent            = 200
-    minimum_healthy_percent    = 100
-    deployment_circuit_breaker {
-      enable   = true
-      rollback = true
-    }
-  }
+  deployment_maximum_percent         = 200
+  deployment_minimum_healthy_percent = 100
 
   network_configuration {
     subnets          = var.private_subnet_ids

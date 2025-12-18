@@ -1,0 +1,76 @@
+{
+  "family": "music-player-dev",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::739654145351:role/music-player-ecs-task-execution-role-dev",
+  "taskRoleArn": "arn:aws:iam::739654145351:role/music-player-ecs-task-role-dev",
+  "containerDefinitions": [
+    {
+      "name": "music-player",
+      "image": "739654145351.dkr.ecr.ap-southeast-1.amazonaws.com/music-player-dev:latest",
+      "portMappings": [
+        {
+          "containerPort": 3000,
+          "hostPort": 3000,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {
+          "name": "NODE_ENV",
+          "value": "production"
+        },
+        {
+          "name": "NEXTAUTH_URL",
+          "value": "http://music-player-alb-dev-68407666.ap-southeast-1.elb.amazonaws.com"
+        },
+        {
+          "name": "NEXTAUTH_SECRET",
+          "value": "KUxty7CmPQ1Yrbe8wXf/oWAdNfpjHPdMINSjvhsFFGo="
+        },
+        {
+          "name": "DATABASE_URL",
+          "value": "postgresql://postgres.wducgtmwajdlacqmsmwn:asolole123!!@aws-1-ap-southeast-2.pooler.supabase.com:5432/postgres"
+        },
+        {
+          "name": "SUPABASE_URL",
+          "value": "https://wducgtmwajdlacqmsmwn.supabase.co"
+        },
+        {
+          "name": "SUPABASE_ANON_KEY",
+          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndkdWNndG13YWpkbGFjcW1zbXduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI5NTQyNjUsImV4cCI6MjA3ODUzMDI2NX0.r8WXYgLxnVqG1keGbYj9Tqpt-NQBicSxw3a0HE9OOF4"
+        },
+        {
+          "name": "NEXT_PUBLIC_SUPABASE_URL",
+          "value": "https://wducgtmwajdlacqmsmwn.supabase.co"
+        },
+        {
+          "name": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndkdWNndG13YWpkbGFjcW1zbXduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI5NTQyNjUsImV4cCI6MjA3ODUzMDI2NX0.r8WXYgLxnVqG1keGbYj9Tqpt-NQBicSxw3a0HE9OOF4"
+        },
+        {
+          "name": "BLOB_READ_WRITE_TOKEN",
+          "value": "vercel_blob_rw_hXKBQckZju4VEVmi_ogqSxmhja7cOvy9oQ0DydkMbhUbwAO"
+        },
+        {
+          "name": "GITHUB_ID",
+          "value": "Ov23liSnae91xyBmWHpm"
+        },
+        {
+          "name": "GITHUB_SECRET",
+          "value": "28a5dd0c7a9f6841ccc2c80146448db0620600c2"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/music-player-dev",
+          "awslogs-region": "ap-southeast-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ]
+}
