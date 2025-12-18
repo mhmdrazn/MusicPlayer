@@ -155,18 +155,11 @@ jobs:
           role-session-name: GitHubActionsSession
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Download Current Task Definition
-        run: |
-          aws ecs describe-task-definition \
-            --task-definition ${{ env.ECS_TASK_DEFINITION }} \
-            --region ${{ env.AWS_REGION }} \
-            --query 'taskDefinition' > task-definition.json
-
       - name: Render Task Definition with Updated Image
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: task-definition.json
+          task-definition: task-def-fixed.json
           container-name: ${{ env.CONTAINER_NAME }}
           image: ${{ needs.build.outputs.image }}
 

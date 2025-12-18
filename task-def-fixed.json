@@ -31,7 +31,7 @@
           "value": "KUxty7CmPQ1Yrbe8wXf/oWAdNfpjHPdMINSjvhsFFGo="
         },
         {
-          "name": "DATABASE_URL",
+          "name": "POSTGRES_URL",
           "value": "postgresql://postgres.wducgtmwajdlacqmsmwn:asolole123!!@aws-1-ap-southeast-2.pooler.supabase.com:5432/postgres"
         },
         {
