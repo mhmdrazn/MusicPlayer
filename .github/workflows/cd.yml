@@ -168,8 +168,9 @@ jobs:
           cp ${{ steps.task-def.outputs.task-definition }} task-definition-updated.json
 
           # Faster container health check to shorten service stabilization
-          cat task-definition-updated.json | jq '.containerDefinitions[0].healthCheck |= {
-            command: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:3000/api/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))\""],
+          # Use a Node.js health check that works in alpine images (no wget/curl needed)
+          cat task-definition-updated.json | jq '.containerDefinitions[0].healthCheck = {
+            command: ["CMD-SHELL", "node -e '\''require(\"http\").get(\"http://localhost:3000/api/health\",r=>process.exit(r.statusCode===200?0:1)).on(\"error\",()=>process.exit(1))'\''"],
             interval: 10,
             timeout: 5,
             retries: 3,
