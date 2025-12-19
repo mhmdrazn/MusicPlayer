@@ -167,13 +167,13 @@ jobs:
         run: |
           cp ${{ steps.task-def.outputs.task-definition }} task-definition-updated.json
 
-          # Ensure health check has extended startup period for app initialization
+          # Faster container health check to shorten service stabilization
           cat task-definition-updated.json | jq '.containerDefinitions[0].healthCheck |= {
             command: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1"],
-            interval: 30,
-            timeout: 10,
-            retries: 5,
-            startPeriod: 180
+            interval: 10,
+            timeout: 5,
+            retries: 3,
+            startPeriod: 60
           }' > task-definition-updated.json.tmp && mv task-definition-updated.json.tmp task-definition-updated.json
 
           echo "task-definition=task-definition-updated.json" >> "$GITHUB_OUTPUT"
@@ -330,17 +330,17 @@ jobs:
         id: health
         continue-on-error: true
         run: |
-          for i in {1..15}; do
-            STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://music-player-alb-dev-681721043.ap-southeast-1.elb.amazonaws.com/ || echo "000")
-            
-            if [ "$STATUS" = "200" ] || [ "$STATUS" = "301" ] || [ "$STATUS" = "302" ]; then
+          for i in {1..12}; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://music-player-alb-dev-681721043.ap-southeast-1.elb.amazonaws.com/api/health || echo "000")
+
+            if [ "$STATUS" = "200" ]; then
               echo "status=success" >> "$GITHUB_OUTPUT"
               echo "✅ Health check passed (HTTP $STATUS)"
               exit 0
             fi
-            
-            echo "Attempt $i/15: HTTP $STATUS (waiting for app...)"
-            sleep 10
+
+            echo "Attempt $i/12: HTTP $STATUS (waiting for app...)"
+            sleep 5
           done
 
           echo "status=failed" >> "$GITHUB_OUTPUT"
