@@ -88,12 +88,13 @@ resource "aws_ecs_task_definition" "main" {
         }
       }
 
-      # Health check - use /api/health endpoint to avoid database queries
+      # Health check - use Node.js to make HTTP request (wget/curl not available in alpine)
+      # /api/health endpoint returns quickly without database queries
       healthCheck = {
-        command     = ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:${var.container_port}/api/health || exit 1"]
-        interval    = 30
-        timeout     = 10
-        retries     = 5
+        command     = ["CMD-SHELL", "node -e \"require('http').get('http://localhost:${var.container_port}/api/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))\""]
+        interval    = 10
+        timeout     = 5
+        retries     = 3
         startPeriod = 120
       }
     }
