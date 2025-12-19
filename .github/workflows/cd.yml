@@ -226,7 +226,7 @@ jobs:
     needs: [build, register-task-definition]
     environment:
       name: production
-      url: http://music-player-alb-dev-681721043.ap-southeast-1.elb.amazonaws.com
+      # URL is resolved dynamically in the health-check job (ALB DNS can change)
     steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -269,6 +269,46 @@ jobs:
           role-to-assume: arn:aws:iam::739654145351:role/music-player-github-actions-dev
           role-session-name: GitHubActionsSession
           aws-region: ${{ env.AWS_REGION }}
+
+      - name: Resolve ALB DNS
+        id: alb
+        run: |
+          TG_ARN=$(aws ecs describe-services \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --services ${{ env.ECS_SERVICE }} \
+            --region ${{ env.AWS_REGION }} \
+            --query 'services[0].loadBalancers[0].targetGroupArn' \
+            --output text)
+
+          if [ -z "$TG_ARN" ] || [ "$TG_ARN" = "None" ]; then
+            echo "❌ Could not resolve target group ARN from ECS service"
+            exit 1
+          fi
+
+          LB_ARN=$(aws elbv2 describe-target-groups \
+            --target-group-arns "$TG_ARN" \
+            --region ${{ env.AWS_REGION }} \
+            --query 'TargetGroups[0].LoadBalancerArns[0]' \
+            --output text)
+
+          if [ -z "$LB_ARN" ] || [ "$LB_ARN" = "None" ]; then
+            echo "❌ Could not resolve load balancer ARN from target group"
+            exit 1
+          fi
+
+          ALB_DNS=$(aws elbv2 describe-load-balancers \
+            --load-balancer-arns "$LB_ARN" \
+            --region ${{ env.AWS_REGION }} \
+            --query 'LoadBalancers[0].DNSName' \
+            --output text)
+
+          if [ -z "$ALB_DNS" ] || [ "$ALB_DNS" = "None" ]; then
+            echo "❌ Could not resolve ALB DNS"
+            exit 1
+          fi
+
+          echo "alb-url=http://$ALB_DNS" >> "$GITHUB_OUTPUT"
+          echo "✅ Using ALB: http://$ALB_DNS"
 
       - name: Wait for Service Stability
         id: wait-stable
@@ -330,8 +370,10 @@ jobs:
         id: health
         continue-on-error: true
         run: |
+          BASE_URL="${{ steps.alb.outputs.alb-url }}"
           for i in {1..12}; do
-            STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://music-player-alb-dev-681721043.ap-southeast-1.elb.amazonaws.com/api/health || echo "000")
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 2 --max-time 5 "$BASE_URL/api/health" || true)
+            if [ -z "$STATUS" ]; then STATUS="000"; fi
 
             if [ "$STATUS" = "200" ]; then
               echo "status=success" >> "$GITHUB_OUTPUT"
