@@ -172,7 +172,7 @@ export function OptimisticPlaylists() {
     >
       {/* Header: Theme Toggle */}
       <div className="flex-shrink-0 px-4 pt-4 pb-2 flex items-center justify-between">
-        <h1 className="text-sm font-semibold text-foreground">Music Player</h1>
+        <h1 className="text-sm font-semibold text-foreground">MyMusic</h1>
         <ThemeToggle />
       </div>
 
