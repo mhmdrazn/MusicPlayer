@@ -58,8 +58,8 @@ jobs:
             echo "status=manual" >> "$GITHUB_OUTPUT"
           fi
 
-  apply-alb-health-check:
-    name: Validate Infrastructure
+  verify-ecs-service:
+    name: Check Infrastructure Prerequisites
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     needs: validate-prerequisites
@@ -86,7 +86,7 @@ jobs:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-    needs: [validate-prerequisites, apply-alb-health-check]
+    needs: [validate-prerequisites, verify-ecs-service]
     outputs:
       image: ${{ steps.build.outputs.image }}
       image-tag: ${{ steps.build.outputs.image-tag }}
